@@ -1,9 +1,12 @@
 <script setup>
 import MainView from './views/MainView.vue';
+import LoginView from './views/LoginView.vue';
 </script>
 
 <template>
-  <MainView></MainView>
+  <!-- <MainView></MainView> -->
+  <!-- <LoginView></LoginView> -->
+  <router-view></router-view>
 </template>
 
 <style scoped>
