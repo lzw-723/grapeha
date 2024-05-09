@@ -1,0 +1,71 @@
+package fun.lzwi.grapeha.db.repository;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import fun.lzwi.grapeha.library.Book;
+import io.vertx.core.Future;
+import io.vertx.jdbcclient.JDBCPool;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.Tuple;
+
+public class BookRepository {
+  private JDBCPool pool;
+
+  // 私有构造方法，防止被实例化
+  private BookRepository() {
+  }
+
+  // 静态内部类，该类被加载时会初始化instance，而且由JVM来保证线程安全
+  private static class SingletonHolder {
+    // 静态初始化器，由JVM来保证线程安全
+    private static final BookRepository INSTANCE = new BookRepository();
+  }
+
+  // 提供全局访问点
+  public static BookRepository getInstance() {
+    return SingletonHolder.INSTANCE;
+  }
+
+  public void init(JDBCPool pool) {
+    this.pool = pool;
+  }
+
+  public Future<Boolean> save(Book book) {
+    return pool.preparedQuery("INSERT INTO books(ID, TITLE, PATH) VALUES (?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getPath())).map(rows -> {
+      return true;
+    });
+  }
+
+  public Future<Boolean> saveAll(List<Book> books) {
+    Future<Boolean> future = Future.all(books.parallelStream().map(this::save).collect(Collectors.toList())).map(true);
+    return future;
+  }
+
+  public Future<Book> findById(String id) {
+    return pool.preparedQuery("SELECT ID,TITLE,PATH FROM BOOKS WHERE ID=?").execute(Tuple.of(id)).map(rows -> getBook(rows.iterator().next()));
+  }
+
+  private Book getBook(Row row) {
+    Book book = new Book();
+    book.setId(row.getString("ID"));
+    book.setName(row.getString("TITLE"));
+    book.setPath(row.getString("PATH"));
+    return book;
+  }
+
+  public Future<List<Book>> findAll() {
+    return pool.query("SELECT ID,TITLE,PATH FROM BOOKS").execute().map(rows -> {
+      List<Book> books = new ArrayList<>();
+      for (Row row : rows) {
+        books.add(getBook(row));
+      }
+      System.out.println(books);
+      return books;
+    });
+  }
+
+  public Future<Boolean> deleteAll() {
+    return pool.query("DELETE FROM BOOKS").execute().map(true);
+  }
+}
