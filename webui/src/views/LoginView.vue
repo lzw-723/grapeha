@@ -1,8 +1,10 @@
 <script setup>
 import { reactive, ref, watch } from "vue";
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute } from "vue-router";
 import { createAlova } from "alova";
 import GlobalFetch from "alova/GlobalFetch";
+
+import { getToken, getUsername } from "../store";
 
 const formData = reactive({
   username: "",
@@ -11,30 +13,33 @@ const formData = reactive({
 const alovaInstance = createAlova({
   requestAdapter: GlobalFetch(),
 });
+const token = getToken();
+const username = getUsername();
 
 let succeed = ref(false);
 let msg = ref("");
-let token = ref("");
 
 const router = useRouter();
 
-watch(succeed, (value, oldValue) => {
+watch(succeed, (value) => {
   if (value) {
-    router.push("/")
+    router.push("/");
   }
-})
+});
 
 async function login() {
   alovaInstance
-    .Post("http://localhost:8080/api/v1/users/" + formData.username, {
+    .Post("http://localhost:8080/api/v1/users/" + formData.username + "/token", {
       password: formData.password,
     })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       if (data.code === 200) {
+        console.log(data);
         msg.value = data.msg;
         succeed.value = true;
+        token.value = data.data;
+        username.value = formData.username;
       }
     });
 }
