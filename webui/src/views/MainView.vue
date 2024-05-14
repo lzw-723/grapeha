@@ -1,55 +1,35 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { createAlova } from "alova";
-import GlobalFetch from "alova/GlobalFetch";
-import { getToken, getUsername } from "../store";
+import { fetchBooks, checkLogin } from "../api";
 
-const alovaInstance = createAlova({
-  requestAdapter: GlobalFetch(),
-});
 const router = useRouter();
 
-const token = getToken();
-const username = getUsername();
 let books = ref([]);
 
-async function getData() {
-  alovaInstance
-    .Get("http://localhost:8080/api/v1/books", {
-      headers: {
-        Authorization: "Bearer " + token.value,
-      },
+function getData() {
+  return fetchBooks()
+    .then((result) => {
+      books.value = result;
     })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      books.value = data.data;
-    });
-}
-
-function checkLogin() {
-  if (token.value == null || username.value == null) {
-    return router.push("/login");
-  }
-  alovaInstance
-    .Get("http://localhost:8080/api/v1/users/" + username.value, {
-      headers: {
-        Authorization: "Bearer " + token.value,
-      },
-    })
-    .then((response) => {
-      if (response.status === 401) {
-        router.push("/login");
-      }
-    });
+    .catch((err) => {});
 }
 
 function getCoverUrl(id) {
   return "http://localhost:8080/api/v1/books/" + id + "/cover";
 }
 
-checkLogin();
+function goBook(id) {
+  router.push("/books/" + id);
+}
+
+checkLogin()
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 </script>
 
 <template>
@@ -64,7 +44,8 @@ checkLogin();
       <var-card
         :src="getCoverUrl(book.id)"
         :title="book.name"
-        :subtitle="book.path"
+        :subtitle="book.author"
+        @click="goBook(book.id)"
       />
     </div>
   </ul>

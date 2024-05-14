@@ -1,6 +1,8 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from "vue-router";
+import { fetchBookById } from "./api";
 import MainView from "./views/MainView.vue";
 import LoginView from "./views/LoginView.vue";
+import BookView from "./views/BookView.vue";
 
 // 1. 定义路由组件.
 // 也可以从其他文件导入
@@ -10,6 +12,10 @@ import LoginView from "./views/LoginView.vue";
 // 我们后面再讨论嵌套路由。
 const routes = [
   { path: "/", component: MainView },
+  {
+    path: "/books/:id",
+    component: BookView,
+  },
   { path: "/login", component: LoginView },
 ];
 

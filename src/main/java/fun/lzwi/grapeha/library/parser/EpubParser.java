@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
 import fun.lzwi.epubime.easy.EasyEpub;
 import fun.lzwi.grapeha.library.Book;
 import io.vertx.core.impl.logging.Logger;
@@ -26,8 +27,12 @@ public class EpubParser {
         book.setName(file.getName());
       }
 
+      book.setAuthor(easyEpub.getAuthor());
+      book.setDate(easyEpub.getDate());
+      book.setDescription(easyEpub.getDescription());
       String cover = easyEpub.getCover();
       book.setCover(cover);
+
 
       process(easyEpub, book);
     } catch (Exception e) {

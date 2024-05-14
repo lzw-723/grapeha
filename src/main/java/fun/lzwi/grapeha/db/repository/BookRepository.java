@@ -32,7 +32,9 @@ public class BookRepository {
   }
 
   public Future<Boolean> save(Book book) {
-    return pool.preparedQuery("INSERT INTO books(ID, TITLE, PATH) VALUES (?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getPath())).map(rows -> {
+    return pool.preparedQuery("INSERT INTO books(ID, TITLE, author, date, description, PATH) VALUES (?, ?, ?, ?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getAuthor(), book.getDate(), book.getDescription(), book.getPath())).onFailure(e -> {
+      e.printStackTrace();
+    }).map(rows -> {
       return true;
     });
   }
@@ -43,24 +45,26 @@ public class BookRepository {
   }
 
   public Future<Book> findById(String id) {
-    return pool.preparedQuery("SELECT ID,TITLE,PATH FROM BOOKS WHERE ID=?").execute(Tuple.of(id)).map(rows -> getBook(rows.iterator().next()));
+    return pool.preparedQuery("SELECT ID,TITLE,author,date,description,PATH FROM BOOKS WHERE ID=?").execute(Tuple.of(id)).map(rows -> getBook(rows.iterator().next()));
   }
 
   private Book getBook(Row row) {
     Book book = new Book();
-    book.setId(row.getString("ID"));
-    book.setName(row.getString("TITLE"));
-    book.setPath(row.getString("PATH"));
+    book.setId(row.getString("id".toUpperCase()));
+    book.setName(row.getString("title".toUpperCase()));
+    book.setAuthor(row.getString("author".toUpperCase()));
+    book.setDate(row.getString("date".toUpperCase()));
+    book.setDescription(row.getString("description".toUpperCase()));
+    book.setPath(row.getString("path".toUpperCase()));
     return book;
   }
 
   public Future<List<Book>> findAll() {
-    return pool.query("SELECT ID,TITLE,PATH FROM BOOKS").execute().map(rows -> {
+    return pool.query("SELECT ID,TITLE,author,date,description,PATH FROM BOOKS").execute().map(rows -> {
       List<Book> books = new ArrayList<>();
       for (Row row : rows) {
         books.add(getBook(row));
       }
-      System.out.println(books);
       return books;
     });
   }

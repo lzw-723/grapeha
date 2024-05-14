@@ -74,7 +74,7 @@
     <dependency>
       <groupId>com.github.lzw-723</groupId>
       <artifactId>epubime</artifactId>
-      <version>2e915e798e</version>
+      <version>37bb363f59</version>
     </dependency>
 
     <dependency>

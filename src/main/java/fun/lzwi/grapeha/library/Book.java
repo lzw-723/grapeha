@@ -12,6 +12,9 @@ public class Book implements Shareable, Serializable {
   private String path;
   private String name;
   private String cover;
+  private String author;
+  private String date;
+  private String description;
 
   /**
    * @return the cover
@@ -61,5 +64,29 @@ public class Book implements Shareable, Serializable {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public String getAuthor() {
+    return author;
+  }
+
+  public void setAuthor(String author) {
+    this.author = author;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getDate() {
+    return date;
+  }
+
+  public void setDate(String date) {
+    this.date = date;
   }
 }
