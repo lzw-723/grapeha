@@ -1,10 +1,10 @@
 package fun.lzwi.grapeha;
 
-import java.util.Random;
-
+import fun.lzwi.epubime.easy.EasyEpub;
 import fun.lzwi.grapeha.db.repository.BookRepository;
 import fun.lzwi.grapeha.db.repository.UserRepository;
 import fun.lzwi.grapeha.library.User;
+import fun.lzwi.grapeha.library.reader.EpubReader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -21,6 +21,11 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.JWTAuthHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.util.List;
 
 public class WebVerticle extends AbstractVerticle {
   Logger logger = LoggerFactory.getLogger(WebVerticle.class);
@@ -97,7 +102,7 @@ public class WebVerticle extends AbstractVerticle {
       });
     });
 
-//    验证token是否有效
+    // 验证token是否有效
     router.get("/api/v1/users/:username").handler(JWTAuthHandler.create(AuthUtils.getProvider(vertx))).respond(ctx -> {
       String username = ctx.pathParam("username");
       return UserRepository.getInstance().findByUsername(username).map(user -> {
@@ -109,7 +114,7 @@ public class WebVerticle extends AbstractVerticle {
       });
     });
 
-// 登录（获取/刷新token）
+    // 登录（获取/刷新token）
     Route login = router.post("/api/v1/users/:username/token");
     login.handler(ctx -> {
       String username = ctx.pathParam("username");
@@ -152,6 +157,64 @@ public class WebVerticle extends AbstractVerticle {
           return resp;
         });
       });
+    });
+
+    epub(router);
+  }
+
+  public void epub(Router router) {
+
+    router.get("/api/v1/books/:bookId/content").respond(ctx -> {
+      String bookId = ctx.pathParam("bookId");
+      JsonObject resp = new JsonObject();
+
+      return BookRepository.getInstance().findById(bookId).map(book -> {
+        try {
+          EasyEpub epub = new EasyEpub(book.getPath());
+          resp.put("code", 200);
+          resp.put("msg", "");
+          resp.put("data", epub.getContent());
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+          resp.put("code", 400);
+          resp.put("msg", e.getMessage());
+        }
+
+        return resp;
+      });
+    });
+
+
+    router.get("/api/v1/books/:bookId/resources").respond(ctx -> {
+      String bookId = ctx.pathParam("bookId");
+      return BookRepository.getInstance().findById(bookId).onFailure(Throwable::printStackTrace).map(book -> {
+        JsonObject resp = new JsonObject();
+        try {
+          EasyEpub epub = new EasyEpub(book.getPath());
+          List<EasyEpub.EasyResource> resources = epub.getResources();
+          resp.put("code", 200);
+          resp.put("msg", "");
+          resp.put("data", resources);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+          e.printStackTrace();
+          resp.put("code", 400);
+          resp.put("msg", e.getMessage());
+        }
+        return resp;
+      });
+    });
+    // Route test = router.route("/api/v1/tests");
+    // router.getWithRegex("/api/v1/tests/(?<href>.*)").respond(ctx -> {
+    // String href = ctx.pathParam("href");
+    // return Future.succeededFuture(href);
+    // });
+    router.getWithRegex("/api/v1/books/(?<bookId>[^\\\\/]+)/resources/(?<href>.*)").respond(ctx -> {
+      String bookId = ctx.pathParam("bookId");
+      String href = ctx.pathParam("href");
+      return BookRepository.getInstance().findById(bookId).compose(book -> {
+        ctx.response().putHeader("content-type", EpubReader.getResourceType(book.getPath(), href));
+        return EpubReader.getResource(book.getPath(), href);
+      });
+
     });
 
   }

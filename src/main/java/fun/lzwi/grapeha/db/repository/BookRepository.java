@@ -32,20 +32,20 @@ public class BookRepository {
   }
 
   public Future<Boolean> save(Book book) {
-    return pool.preparedQuery("INSERT INTO books(ID, TITLE, author, date, description, PATH) VALUES (?, ?, ?, ?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getAuthor(), book.getDate(), book.getDescription(), book.getPath())).onFailure(e -> {
+    return pool.preparedQuery("INSERT INTO Books(id, title, author, date, description, PATH) VALUES (?, ?, ?, ?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getAuthor(), book.getDate(), book.getDescription(), book.getPath())).onFailure(e -> {
       e.printStackTrace();
     }).map(rows -> {
       return true;
     });
   }
 
-  public Future<Boolean> saveAll(List<Book> books) {
-    Future<Boolean> future = Future.all(books.parallelStream().map(this::save).collect(Collectors.toList())).map(true);
+  public Future<Boolean> saveAll(List<Book> Books) {
+    Future<Boolean> future = Future.all(Books.parallelStream().map(this::save).collect(Collectors.toList())).map(true);
     return future;
   }
 
   public Future<Book> findById(String id) {
-    return pool.preparedQuery("SELECT ID,TITLE,author,date,description,PATH FROM BOOKS WHERE ID=?").execute(Tuple.of(id)).map(rows -> getBook(rows.iterator().next()));
+    return pool.preparedQuery("SELECT id,title,author,date,description,PATH FROM Books WHERE id=?").execute(Tuple.of(id)).map(rows -> getBook(rows.iterator().next()));
   }
 
   private Book getBook(Row row) {
@@ -60,16 +60,16 @@ public class BookRepository {
   }
 
   public Future<List<Book>> findAll() {
-    return pool.query("SELECT ID,TITLE,author,date,description,PATH FROM BOOKS").execute().map(rows -> {
-      List<Book> books = new ArrayList<>();
+    return pool.query("SELECT id,title,author,date,description,PATH FROM Books").execute().map(rows -> {
+      List<Book> Books = new ArrayList<>();
       for (Row row : rows) {
-        books.add(getBook(row));
+        Books.add(getBook(row));
       }
-      return books;
+      return Books;
     });
   }
 
   public Future<Boolean> deleteAll() {
-    return pool.query("DELETE FROM BOOKS").execute().map(true);
+    return pool.query("DELETE FROM Books").execute().map(true);
   }
 }
