@@ -12,9 +12,9 @@ import fun.lzwi.grapeha.library.parser.EpubParser;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 
-public class Library {
+public class LibraryUtils {
 
-  private static Logger logger = LoggerFactory.getLogger(Library.class);
+  private static Logger logger = LoggerFactory.getLogger(LibraryUtils.class);
 
 
 

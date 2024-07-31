@@ -1,5 +1,6 @@
 package fun.lzwi.grapeha.db;
 
+import fun.lzwi.grapeha.config.ConfigUtils;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.logging.Logger;
@@ -13,7 +14,8 @@ public class HSQLDB {
   public static Future<JDBCPool> init(Vertx vertx) {
     Logger logger = LoggerFactory.getLogger(HSQLDB.class);
 
-    final JsonObject config = new JsonObject().put("url", "jdbc:hsqldb:file:./config/db/testdb").put("datasourceName", "pool-name").put("username", "sa").put("password", "").put("max_pool_size", 16);
+    String url = "jdbc:hsqldb:file:" + ConfigUtils.getConfigPath() + "/db/library/library_database";
+    final JsonObject config = new JsonObject().put("url", url).put("datasourceName", "pool-name").put("username", "sa").put("password", "").put("max_pool_size", 16);
 
     pool = JDBCPool.pool(vertx, config);
 

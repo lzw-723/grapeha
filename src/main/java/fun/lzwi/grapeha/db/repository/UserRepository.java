@@ -32,7 +32,7 @@ public class UserRepository {
     this.pool = pool;
   }
 
-  private User getUser(Row row) {
+  User getUser(Row row) {
     User user = new User();
     user.setId(row.getInteger("id".toUpperCase()));
     user.setUsername(row.getString("username".toUpperCase()));

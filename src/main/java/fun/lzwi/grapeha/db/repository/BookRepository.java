@@ -32,7 +32,7 @@ public class BookRepository {
   }
 
   public Future<Boolean> save(Book book) {
-    return pool.preparedQuery("INSERT INTO Books(id, title, author, date, description, PATH) VALUES (?, ?, ?, ?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getAuthor(), book.getDate(), book.getDescription(), book.getPath())).onFailure(e -> {
+    return pool.preparedQuery("INSERT INTO Books(id, title, author, date, description, path) VALUES (?, ?, ?, ?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getAuthor(), book.getDate(), book.getDescription(), book.getPath())).onFailure(e -> {
       e.printStackTrace();
     }).map(rows -> {
       return true;
@@ -45,7 +45,7 @@ public class BookRepository {
   }
 
   public Future<Book> findById(String id) {
-    return pool.preparedQuery("SELECT id,title,author,date,description,PATH FROM Books WHERE id=?").execute(Tuple.of(id)).map(rows -> getBook(rows.iterator().next()));
+    return pool.preparedQuery("SELECT id,title,author,date,description,path FROM Books WHERE id=?").execute(Tuple.of(id)).map(rows -> getBook(rows.iterator().next()));
   }
 
   private Book getBook(Row row) {
@@ -60,7 +60,7 @@ public class BookRepository {
   }
 
   public Future<List<Book>> findAll() {
-    return pool.query("SELECT id,title,author,date,description,PATH FROM Books").execute().map(rows -> {
+    return pool.query("SELECT id,title,author,date,description,path FROM Books").execute().map(rows -> {
       List<Book> Books = new ArrayList<>();
       for (Row row : rows) {
         Books.add(getBook(row));

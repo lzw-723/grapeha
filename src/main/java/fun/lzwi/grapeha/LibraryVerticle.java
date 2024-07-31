@@ -4,7 +4,7 @@ import fun.lzwi.grapeha.db.HSQLDB;
 import fun.lzwi.grapeha.db.repository.BookRepository;
 import fun.lzwi.grapeha.db.repository.UserRepository;
 import fun.lzwi.grapeha.library.Book;
-import fun.lzwi.grapeha.library.Library;
+import fun.lzwi.grapeha.library.LibraryUtils;
 import fun.lzwi.grapeha.library.User;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -41,7 +41,7 @@ public class LibraryVerticle extends AbstractVerticle {
     EventBus eventBus = vertx.eventBus();
     MessageConsumer<String> consumer = eventBus.consumer("scan.book");
     consumer.handler(path -> {
-      List<Book> books = Library.scan(path.body());
+      List<Book> books = LibraryUtils.scan(path.body());
       BookRepository.getInstance().deleteAll().compose(v -> BookRepository.getInstance().saveAll(books));
     });
 

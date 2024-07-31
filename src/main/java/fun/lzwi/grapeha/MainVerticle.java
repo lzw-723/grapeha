@@ -1,5 +1,6 @@
 package fun.lzwi.grapeha;
 
+import fun.lzwi.grapeha.config.ConfigUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -13,6 +14,7 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     Logger logger = LoggerFactory.getLogger(MainVerticle.class);
+    ConfigUtils.init();
     // int port = Integer.valueOf(System.getenv("port"));
     Future<String> lib = vertx
         .deployVerticle(new LibraryVerticle(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER))
