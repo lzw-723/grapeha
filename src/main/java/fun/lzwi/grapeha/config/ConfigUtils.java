@@ -4,6 +4,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ConfigUtils {
+  public static boolean isDev() {
+    return "dev".equals(System.getenv("GRAPEHA_ENV".toLowerCase()));
+  }
+
   public static String getConfigPath() {
     // 读取环境变量
     String path = System.getenv("GRAPEHA_CONFIG_PATH");

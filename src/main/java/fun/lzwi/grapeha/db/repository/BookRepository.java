@@ -32,16 +32,13 @@ public class BookRepository {
   }
 
   public Future<Boolean> save(Book book) {
-    return pool.preparedQuery("INSERT INTO Books(id, title, author, date, description, path) VALUES (?, ?, ?, ?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getAuthor(), book.getDate(), book.getDescription(), book.getPath())).onFailure(e -> {
-      e.printStackTrace();
-    }).map(rows -> {
+    return pool.preparedQuery("INSERT INTO Books(id, title, author, date, description, path) VALUES (?, ?, ?, ?, ?, ?);").execute(Tuple.of(UUID.randomUUID().toString(), book.getName(), book.getAuthor(), book.getDate(), book.getDescription(), book.getPath())).onFailure(Throwable::printStackTrace).map(rows -> {
       return true;
     });
   }
 
   public Future<Boolean> saveAll(List<Book> Books) {
-    Future<Boolean> future = Future.all(Books.parallelStream().map(this::save).collect(Collectors.toList())).map(true);
-    return future;
+    return Future.all(Books.parallelStream().map(this::save).collect(Collectors.toList())).map(true);
   }
 
   public Future<Book> findById(String id) {

@@ -3,7 +3,6 @@ package fun.lzwi.grapeha.db.repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import fun.lzwi.grapeha.library.Book;
 import fun.lzwi.grapeha.library.User;
 import io.vertx.core.Future;
 import io.vertx.jdbcclient.JDBCPool;
@@ -63,11 +62,11 @@ public class UserRepository {
 
   public Future<Void> save(User user) {
     return pool.preparedQuery("INSERT INTO Users(username,password) VALUES (?,?);")
-        .execute(Tuple.of(user.getUsername(), user.getPassword())).onFailure(e->e.printStackTrace()).mapEmpty();
+        .execute(Tuple.of(user.getUsername(), user.getPassword())).onFailure(Throwable::printStackTrace).mapEmpty();
   }
 
   public Future<Integer> count() {
     return pool.query("SELECT COUNT(id) FROM Users;").execute()
-        .map(rows -> Integer.valueOf(rows.iterator().next().getInteger(0))).onFailure(e -> e.printStackTrace());
+        .map(rows -> rows.iterator().next().getInteger(0)).onFailure(Throwable::printStackTrace);
   }
 }
