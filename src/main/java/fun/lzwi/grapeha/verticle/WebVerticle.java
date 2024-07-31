@@ -1,4 +1,4 @@
-package fun.lzwi.grapeha;
+package fun.lzwi.grapeha.verticle;
 
 import fun.lzwi.grapeha.api.BookAPI;
 import fun.lzwi.grapeha.api.BookShelfAPI;

@@ -69,4 +69,11 @@ public class UserRepository {
     return pool.query("SELECT COUNT(id) FROM Users;").execute()
         .map(rows -> rows.iterator().next().getInteger(0)).onFailure(Throwable::printStackTrace);
   }
+
+  public Future<Void> delete(int id) {
+    return pool.preparedQuery("DELETE FROM Users WHERE id=?").execute(Tuple.of(id)).onFailure(Throwable::printStackTrace).mapEmpty();
+  }
+  public Future<Void> deleteAll() {
+    return pool.preparedQuery("DELETE FROM Users").execute().onFailure(Throwable::printStackTrace).mapEmpty();
+  }
 }

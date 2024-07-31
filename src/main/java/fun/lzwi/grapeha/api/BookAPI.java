@@ -2,7 +2,6 @@ package fun.lzwi.grapeha.api;
 
 import fun.lzwi.epubime.easy.EasyEpub;
 import fun.lzwi.grapeha.AuthUtils;
-import fun.lzwi.grapeha.WebVerticle;
 import fun.lzwi.grapeha.db.repository.BookRepository;
 import fun.lzwi.grapeha.library.reader.EpubReader;
 import io.vertx.core.Vertx;
@@ -10,7 +9,6 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.JWTAuthHandler;
 import org.xml.sax.SAXException;

@@ -1,11 +1,13 @@
 package fun.lzwi.grapeha;
 
 import fun.lzwi.grapeha.config.ConfigUtils;
+import fun.lzwi.grapeha.verticle.DatabaseVerticle;
+import fun.lzwi.grapeha.verticle.LibraryVerticle;
+import fun.lzwi.grapeha.verticle.TaskerVerticle;
+import fun.lzwi.grapeha.verticle.WebVerticle;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.ThreadingModel;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 
@@ -16,17 +18,10 @@ public class MainVerticle extends AbstractVerticle {
     Logger logger = LoggerFactory.getLogger(MainVerticle.class);
     ConfigUtils.init();
 
-    Future<String> lib = vertx.deployVerticle(new LibraryVerticle(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER)).onFailure(e -> {
-      logger.error("LibraryVerticle启动失败！", e);
-    }).onSuccess(s -> {
-      logger.info("LibraryVerticle启动成功。");
-    });
-    Future<String> web = vertx.deployVerticle(new WebVerticle()).onFailure(e -> {
-      logger.error("WebVerticle启动失败！", e);
-    }).onSuccess(s -> {
-      logger.info("WebVerticle启动成功。");
-    });
-    // Future.all(lib, web).
+    Future<String> database = vertx.deployVerticle(new DatabaseVerticle()).onFailure(Throwable::printStackTrace);
+    Future<String> library = vertx.deployVerticle(new LibraryVerticle()).onFailure(Throwable::printStackTrace);
+    Future<String> tasker = vertx.deployVerticle(new TaskerVerticle()).onFailure(Throwable::printStackTrace);
+    Future<String> web = vertx.deployVerticle(new WebVerticle()).onFailure(Throwable::printStackTrace);
 
   }
 }
