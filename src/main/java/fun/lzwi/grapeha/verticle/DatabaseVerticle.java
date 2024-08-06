@@ -8,6 +8,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 
+// 数据库初始化
 public class DatabaseVerticle extends AbstractVerticle {
   static final String EVENT_STARTED = "verticle.database.started";
   Logger logger = LoggerFactory.getLogger(DatabaseVerticle.class);

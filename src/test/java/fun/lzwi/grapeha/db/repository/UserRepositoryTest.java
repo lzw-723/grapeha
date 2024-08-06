@@ -1,6 +1,6 @@
 package fun.lzwi.grapeha.db.repository;
 
-import fun.lzwi.grapeha.library.User;
+import fun.lzwi.grapeha.library.bean.User;
 import io.vertx.sqlclient.Row;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

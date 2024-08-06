@@ -2,7 +2,7 @@ package fun.lzwi.grapeha.api;
 
 import fun.lzwi.grapeha.AuthUtils;
 import fun.lzwi.grapeha.db.repository.UserRepository;
-import fun.lzwi.grapeha.library.User;
+import fun.lzwi.grapeha.library.bean.User;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonObject;

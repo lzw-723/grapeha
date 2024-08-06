@@ -1,6 +1,6 @@
 package fun.lzwi.grapeha.db.repository;
 
-import fun.lzwi.grapeha.library.Bookshelf;
+import fun.lzwi.grapeha.library.bean.Bookshelf;
 import io.vertx.core.Future;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;

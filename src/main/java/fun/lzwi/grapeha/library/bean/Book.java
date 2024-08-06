@@ -1,4 +1,4 @@
-package fun.lzwi.grapeha.library;
+package fun.lzwi.grapeha.library.bean;
 
 import java.beans.JavaBean;
 import java.io.Serializable;
@@ -11,24 +11,9 @@ public class Book implements Shareable, Serializable {
   private String id;
   private String path;
   private String name;
-  private String cover;
   private String author;
   private String date;
   private String description;
-
-  /**
-   * @return the cover
-   */
-  public String getCover() {
-    return cover;
-  }
-
-  /**
-   * @param cover the cover to set
-   */
-  public void setCover(String cover) {
-    this.cover = cover;
-  }
 
   /**
    * @return the path

@@ -3,7 +3,7 @@ package fun.lzwi.grapeha.db.repository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import fun.lzwi.grapeha.library.Book;
+import fun.lzwi.grapeha.library.bean.Book;
 import io.vertx.core.Future;
 import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.sqlclient.Row;

@@ -1,4 +1,4 @@
-package fun.lzwi.grapeha.library;
+package fun.lzwi.grapeha.library.bean;
 
 public class User {
   private int id;
