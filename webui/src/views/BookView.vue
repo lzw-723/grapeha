@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch } from "vue";
-import { useRoute } from "vue-router";
-import { fetchBookById } from "../api";
+import {ref, watch} from "vue";
+import {useRoute} from "vue-router";
+import {fetchBookById} from "../api";
 
 const route = useRoute();
 let book = ref({
@@ -26,13 +26,57 @@ watch(
         book.value.description = result.description;
         book.value.file = result.path;
       })
-      .catch((err) => {});
+      .catch((err) => {
+      });
   },
-  { immediate: true }
+  {immediate: true}
 );
 </script>
 
 <template>
+  <var-app-bar>
+    <template #left>
+      <var-button
+        color="transparent"
+        text-color="#fff"
+        round
+        text
+        @click="$router.back()"
+      >
+        <var-icon name="chevron-left" :size="24"/>
+      </var-button>
+      <var-button
+        color="transparent"
+        text-color="#fff"
+        round
+        text
+        @click="$router.push('/')"
+      >
+        <var-icon name="home" :size="24"/>
+      </var-button>
+    </template>
+
+    <template #right>
+      <var-menu>
+        <var-button
+          color="transparent"
+          text-color="#fff"
+          round
+          text
+        >
+          <var-icon name="menu" :size="24"/>
+        </var-button>
+
+        <template #menu>
+          <var-cell ripple>选项卡</var-cell>
+          <var-cell ripple>选项卡</var-cell>
+          <var-cell ripple>选项卡</var-cell>
+        </template>
+      </var-menu>
+    </template>
+  </var-app-bar>
+
+
   <var-row :gutter="[10, 60]">
     <var-col :span="5">
       <div class="cover">
@@ -49,7 +93,7 @@ watch(
     <var-col :span="16">
       <ul class="details">
         <var-cell
-          ><h1>{{ book.title }}</h1></var-cell
+        ><h1>{{ book.title }}</h1></var-cell
         >
 
         <var-cell>

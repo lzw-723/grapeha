@@ -41,8 +41,7 @@ getData();
 </script>
 
 <template>
-  <var-app-bar title="标题"/>
-  <var-button @click="getData">GET</var-button>
+  <var-app-bar title="GrapeHA"/>
   <ul style="display: flex; flex-direction: row; flex-wrap: wrap">
     <div
       v-for="book in books"

@@ -1,8 +1,6 @@
 <script setup>
 import {reactive, ref, watch} from "vue";
 import {useRouter, useRoute} from "vue-router";
-import {createAlova} from "alova";
-import GlobalFetch from "alova/GlobalFetch";
 
 import {getToken, getUsername} from "../store";
 import {checkLogin} from "../api.js";
