@@ -15,6 +15,8 @@ public class Book implements Shareable, Serializable {
   private String date;
   private String description;
 
+  private String lastUpdate;
+
   /**
    * @return the path
    */
@@ -73,5 +75,13 @@ public class Book implements Shareable, Serializable {
 
   public void setDate(String date) {
     this.date = date;
+  }
+
+  public String getLastUpdate() {
+    return lastUpdate;
+  }
+
+  public void setLastUpdate(String lastUpdate) {
+    this.lastUpdate = lastUpdate;
   }
 }

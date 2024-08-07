@@ -4,6 +4,7 @@ import fun.lzwi.grapeha.config.ConfigUtils;
 import fun.lzwi.grapeha.db.repository.BookRepository;
 import fun.lzwi.grapeha.db.repository.BookshelfRepository;
 import fun.lzwi.grapeha.db.repository.UserRepository;
+import fun.lzwi.grapeha.library.CacheUtils;
 import fun.lzwi.grapeha.library.bean.Bookshelf;
 import fun.lzwi.grapeha.library.bean.User;
 import io.vertx.core.AbstractVerticle;
@@ -58,18 +59,16 @@ public class LibraryVerticle extends AbstractVerticle {
                     r -> {
                       // 扫描书架
                       logger.info("扫描书架");
-                      BookshelfRepository.getInstance()
-                          .findAll()
-                          .onSuccess(
-                              h ->
-                                  h.forEach(
-                                      bookshelf ->
-                                          eventBus.publish(
-                                              TaskerVerticle.ACTION_SCAN_BOOKS_IN_BOOKSHELF,
-                                              bookshelf.getPath())));
-
-                      return Future.succeededFuture();
+                      return freshBookshelfBooks(eventBus)
+                          .onComplete(h -> freshBookshelfBookCovers(eventBus));
                     }));
+
+    vertx.setPeriodic(
+        1000L * 60 * 60 * 6,
+        h -> {
+          logger.info("计划任务：扫描书架");
+          freshBookshelfBooks(eventBus).onComplete(a -> freshBookshelfBookCovers(eventBus));
+        });
   }
 
   /**
@@ -86,7 +85,12 @@ public class LibraryVerticle extends AbstractVerticle {
           BookRepository.getInstance()
               .deleteAll()
               .compose(r -> BookshelfRepository.getInstance().deleteAll())
-              .compose(r -> UserRepository.getInstance().deleteAll());
+              .compose(r -> UserRepository.getInstance().deleteAll())
+              .map(
+                  a -> {
+                    CacheUtils.clean();
+                    return null;
+                  });
       // 读取./data目录下的文件夹，并将文件夹名称作为书架名称，并创建书架
       future.map(
           v -> {
@@ -108,5 +112,32 @@ public class LibraryVerticle extends AbstractVerticle {
           });
     }
     return future;
+  }
+
+  private Future<Void> freshBookshelfBooks(EventBus eventBus) {
+    return BookshelfRepository.getInstance()
+        .findAll()
+        .map(
+            bookshelves -> {
+              bookshelves.forEach(
+                  bookshelf ->
+                      eventBus.publish(
+                          TaskerVerticle.ACTION_SCAN_BOOKS_IN_BOOKSHELF, bookshelf.getPath()));
+              return null;
+            });
+  }
+
+  private Future<Void> freshBookshelfBookCovers(EventBus eventBus) {
+    return BookshelfRepository.getInstance()
+        .findAll()
+        .map(
+            bookshelves -> {
+              bookshelves.forEach(
+                  bookshelf ->
+                      eventBus.publish(
+                          TaskerVerticle.ACTION_GENERATE_BOOK_COVER_IN_BOOKSHELF,
+                          bookshelf.getPath()));
+              return null;
+            });
   }
 }
