@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { fetchBookById } from "./api";
 import MainView from "./views/MainView.vue";
 import LoginView from "./views/LoginView.vue";
 import BookView from "./views/BookView.vue";

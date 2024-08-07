@@ -3,15 +3,13 @@ import {reactive, ref, watch} from "vue";
 import {useRouter, useRoute} from "vue-router";
 
 import {getToken, getUsername} from "../store";
-import {checkLogin} from "../api.js";
+import {checkLogin, fetchUserToken} from "../api.js";
 
 const formData = reactive({
   username: "",
   password: "",
 });
-const alovaInstance = createAlova({
-  requestAdapter: GlobalFetch(),
-});
+
 const token = getToken();
 const username = getUsername();
 
@@ -26,21 +24,14 @@ watch(succeed, (value) => {
   }
 });
 
-async function login() {
-  alovaInstance
-    .Post("http://localhost:8080/api/v1/users/" + formData.username + "/token", {
-      password: formData.password,
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.code === 200) {
-        console.log(data);
-        msg.value = data.msg;
-        succeed.value = true;
-        token.value = data.data;
+function login() {
+  fetchUserToken(formData.username, formData.password)
+    .then((t) => {
         username.value = formData.username;
+        token.value = t;
+        succeed.value = true;
       }
-    });
+    );
 }
 
 checkLogin().then(r => succeed.value = true)

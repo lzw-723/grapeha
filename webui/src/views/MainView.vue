@@ -1,19 +1,22 @@
 <script setup>
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import {fetchBooks, checkLogin} from "../api";
+import {getToken, getUsername} from "../store";
+import {checkLogin, fetchBooks} from "../api";
 
 const router = useRouter();
 
 let books = ref([]);
 
-function getData() {
-  return fetchBooks()
-    .then((result) => {
-      books.value = result;
-    })
-    .catch((err) => {
-    });
+async function getBooks() {
+  try {
+    books.value = await fetchBooks();
+  } catch (err) {
+  }
+}
+
+async function getBookShelves() {
+  console.log("getBookShelves");
 }
 
 function getCoverUrl(id) {
@@ -28,8 +31,15 @@ function goLogin() {
   router.push("/login");
 }
 
+function logout() {
+  getUsername().value = "";
+  getToken().value = "";
+  router.push("/login");
+}
+
 checkLogin()
   .then((result) => {
+    console.log("成功")
     console.log(result);
   })
   .catch((err) => {
@@ -37,11 +47,38 @@ checkLogin()
     goLogin();
   });
 
-getData();
+getBooks();
 </script>
 
 <template>
-  <var-app-bar title="GrapeHA"/>
+  <var-app-bar title="GrapeHA">
+    <template #right>
+      <var-button color="transparent"
+                  text-color="#fff"
+                  round
+                  text
+                  @click="logout">
+        <var-icon name="power" :size="24"/>
+      </var-button>
+    </template>
+  </var-app-bar>
+  <!--  <var-card-->
+  <!--    src="https://varletjs.org/cat.jpg"-->
+  <!--    style="width: 368px; height: 260px; margin: 1rem"-->
+  <!--    image-width="368"-->
+  <!--    image-height="260"-->
+  <!--    outline-->
+  <!--    :elevation="0"-->
+  <!--    title="宠物"-->
+  <!--  />-->
+  <ul>
+    <li>
+      <div style="width: 368px;height: 260px; display: flex; align-items: center;justify-content: center">
+        <h2 style="text-align: center">标题</h2>
+      </div>
+    </li>
+  </ul>
+
   <ul style="display: flex; flex-direction: row; flex-wrap: wrap">
     <div
       v-for="book in books"

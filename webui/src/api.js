@@ -3,6 +3,19 @@ import {getToken, getUsername} from "./store";
 const token = getToken();
 const username = getUsername();
 
+function fetchUserToken(username, password) {
+  return fetch("http://localhost:8080/api/v1/users/" + username + "/token", {
+    method: "POST", body: JSON.stringify({password})
+  })
+    .then((response) => response.json()).then((data) => {
+      if (data["code"] !== 200) {
+        throw Error(data["msg"]);
+      }
+      token.value = data["data"];
+      return token.value;
+    });
+}
+
 function fetchBooks() {
   return fetch("http://localhost:8080/api/v1/books", {
     headers: {
@@ -23,6 +36,15 @@ function fetchBookById(id) {
     .then((data) => data["data"]);
 }
 
+function fetchBookshelves() {
+  return fetch("http://localhost:8080/api/v1/bookshelves", {
+    headers: {
+      Authorization: `Bearer ${token.value}`,
+    },
+  }).then((response) => response.json())
+    .then((data) => data["data"]);
+}
+
 /**
  * 检查用户是否登录。如果登录，获取用户信息并返回；如果未登录或登录信息无效，抛出错误。
  * @throws {Error} 如果没有登录记录，抛出错误信息"没有登录记录！"。
@@ -31,7 +53,8 @@ function fetchBookById(id) {
  * @returns {Object} 如果登录有效，返回用户数据。
  */
 async function checkLogin() {
-  if (token.value == null || username.value == null) {
+  console.log(token.value, username.value)
+  if (token.value == null || username.value == null || username.value === "" || token.value === "") {
     throw Error("没有登录记录！");
   }
   let resp = await fetch(`http://localhost:8080/api/v1/users/${username.value}`, {
@@ -49,4 +72,4 @@ async function checkLogin() {
   return data["data"];
 }
 
-export {fetchBookById, fetchBooks, checkLogin};
+export {fetchUserToken, fetchBookById, fetchBooks, checkLogin};
