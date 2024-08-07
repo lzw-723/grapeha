@@ -1,10 +1,11 @@
 <script setup>
-import { reactive, ref, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { createAlova } from "alova";
+import {reactive, ref, watch} from "vue";
+import {useRouter, useRoute} from "vue-router";
+import {createAlova} from "alova";
 import GlobalFetch from "alova/GlobalFetch";
 
-import { getToken, getUsername } from "../store";
+import {getToken, getUsername} from "../store";
+import {checkLogin} from "../api.js";
 
 const formData = reactive({
   username: "",
@@ -23,7 +24,7 @@ const router = useRouter();
 
 watch(succeed, (value) => {
   if (value) {
-    router.push("/");
+    router.back();
   }
 });
 
@@ -43,6 +44,8 @@ async function login() {
       }
     });
 }
+
+checkLogin().then(r => succeed.value = true)
 </script>
 
 <template>

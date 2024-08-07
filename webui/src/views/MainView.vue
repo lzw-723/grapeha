@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { fetchBooks, checkLogin } from "../api";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
+import {fetchBooks, checkLogin} from "../api";
 
 const router = useRouter();
 
@@ -12,7 +12,8 @@ function getData() {
     .then((result) => {
       books.value = result;
     })
-    .catch((err) => {});
+    .catch((err) => {
+    });
 }
 
 function getCoverUrl(id) {
@@ -23,17 +24,24 @@ function goBook(id) {
   router.push("/books/" + id);
 }
 
+function goLogin() {
+  router.push("/login");
+}
+
 checkLogin()
   .then((result) => {
     console.log(result);
   })
   .catch((err) => {
-    console.error(err);
+    // console.error(err);
+    goLogin();
   });
+
+getData();
 </script>
 
 <template>
-  <var-app-bar title="标题" />
+  <var-app-bar title="标题"/>
   <var-button @click="getData">GET</var-button>
   <ul style="display: flex; flex-direction: row; flex-wrap: wrap">
     <div

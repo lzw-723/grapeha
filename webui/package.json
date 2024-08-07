@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@varlet/ui": "^3.2.6",
-    "alova": "^2.20.1",
     "vue": "^3.4.21",
     "vue-router": "4"
   },
