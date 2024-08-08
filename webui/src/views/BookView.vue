@@ -1,10 +1,12 @@
 <script setup>
 import {ref, watch} from "vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {fetchBookById, getBookCoverById} from "../api";
 
 const route = useRoute();
+const router = useRouter();
 let book = ref({
+  id: null,
   title: null,
   cover: null,
   author: null,
@@ -19,6 +21,7 @@ watch(
     fetchBookById(v)
       .then((result) => {
         console.log(result);
+        book.value.id = result.id;
         book.value.title = result.name;
         book.value.cover =
           getBookCoverById(result.id);
@@ -31,6 +34,10 @@ watch(
   },
   {immediate: true}
 );
+
+function goRead(id) {
+  router.push("/read/" + id);
+}
 </script>
 
 <style scoped>
@@ -114,11 +121,11 @@ watch(
         <var-cell>
           <!-- style="max-width: 170px" -->
           <var-ellipsis expand-trigger="click" :line-clamp="3" :tooltip="false">
-            {{ book.description || "暂无" }}
+            {{ book.description || "暂无介绍" }}
           </var-ellipsis>
         </var-cell>
         <var-space :size="[10, 10]">
-          <var-button text outline type="primary">阅读</var-button>
+          <var-button text outline type="primary" @click="goRead(book.id)">阅读</var-button>
           <var-button text type="primary">收藏</var-button>
         </var-space>
       </ul>

@@ -68,6 +68,19 @@ function fetchBookshelfById(id) {
     .then((data) => data["data"]);
 }
 
+function fetchBookContent(id) {
+  return fetch(`http://localhost:8080/api/v1/books/${id}/content`, {
+    headers: {
+      Authorization: `Bearer ${token.value}`,
+    },
+  }).then((response) => response.json())
+    .then((data) => data["data"]);
+}
+
+function getBookResourceById(id, res) {
+  return `http://localhost:8080/api/v1/books/${id}/resources/${res}`;
+}
+
 /**
  * 检查用户是否登录。如果登录，获取用户信息并返回；如果未登录或登录信息无效，抛出错误。
  * @throws {Error} 如果没有登录记录，抛出错误信息"没有登录记录！"。
@@ -102,6 +115,8 @@ export {
   fetchBooksInBookshelf,
   fetchBookById,
   getBookCoverById,
+  getBookResourceById,
   fetchBooks,
+  fetchBookContent,
   checkLogin
 };
