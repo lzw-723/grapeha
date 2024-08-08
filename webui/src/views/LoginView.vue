@@ -14,7 +14,6 @@ const token = getToken();
 const username = getUsername();
 
 let succeed = ref(false);
-let msg = ref("");
 
 const router = useRouter();
 
@@ -38,33 +37,38 @@ checkLogin().then(r => succeed.value = true)
 </script>
 
 <template>
-  <var-snackbar v-model:show="succeed">{{ msg }}</var-snackbar>
-  <var-row>
-    <var-col :span="16" :offset="4">
-      <div>
-        <var-form ref="form" scroll-to-error="start">
-          <var-space direction="column" justify="center">
-            <var-input
-              name="username"
-              autocomplete="username"
-              placeholder="用户名"
-              :rules="[(v) => !!v || '用户名不能为空']"
-              v-model="formData.username"
-            />
-            <var-input
-              type="password"
-              placeholder="密码"
-              :rules="[(v) => !!v || '密码不能为空']"
-              v-model="formData.password"
-            />
-            <var-space direction="column" :size="[14, 0]">
-              <var-button block type="primary" @click="login">
-                登录
-              </var-button>
-            </var-space>
-          </var-space>
-        </var-form>
-      </div>
-    </var-col>
-  </var-row>
+  <div class="content">
+    <var-form ref="form" scroll-to-error="start">
+      <var-space direction="column" justify="center">
+        <var-input
+          type="text"
+          name="username"
+          placeholder="用户名"
+          :rules="[(v) => !!v || '用户名不能为空']"
+          v-model="formData.username"
+        />
+        <var-input
+          type="password"
+          autocomplete="current-password"
+          placeholder="密码"
+          :rules="[(v) => !!v || '密码不能为空']"
+          v-model="formData.password"
+        />
+        <var-button block type="primary" @click="login">
+          登录
+        </var-button>
+      </var-space>
+    </var-form>
+  </div>
+
 </template>
+
+<style scoped>
+.content {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+</style>
