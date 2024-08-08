@@ -2,16 +2,23 @@
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import {getToken, getUsername} from "../store";
-import {checkLogin, fetchBooks} from "../api";
+import {checkLogin, fetchBooks, fetchBookshelves} from "../api";
+import Bookshelf from "../components/Bookshelf.vue";
 
 const router = useRouter();
 
+let bookshelves = ref([]);
 let books = ref([]);
+
+function getBookshelves() {
+  fetchBookshelves().then(r => bookshelves.value = r).catch(err => console.log(err));
+}
 
 async function getBooks() {
   try {
     books.value = await fetchBooks();
   } catch (err) {
+    console.log("获取books失败");
   }
 }
 
@@ -21,6 +28,10 @@ async function getBookShelves() {
 
 function getCoverUrl(id) {
   return "http://localhost:8080/api/v1/books/" + id + "/cover";
+}
+
+function goBookshelf(id) {
+  router.push("/bookshelves/" + id);
 }
 
 function goBook(id) {
@@ -47,6 +58,7 @@ checkLogin()
     goLogin();
   });
 
+getBookshelves();
 getBooks();
 </script>
 
@@ -62,29 +74,23 @@ getBooks();
       </var-button>
     </template>
   </var-app-bar>
-  <!--  <var-card-->
-  <!--    src="https://varletjs.org/cat.jpg"-->
-  <!--    style="width: 368px; height: 260px; margin: 1rem"-->
-  <!--    image-width="368"-->
-  <!--    image-height="260"-->
-  <!--    outline-->
-  <!--    :elevation="0"-->
-  <!--    title="宠物"-->
-  <!--  />-->
-  <ul>
-    <li>
-      <div style="width: 368px;height: 260px; display: flex; align-items: center;justify-content: center">
-        <h2 style="text-align: center">标题</h2>
-      </div>
-    </li>
-  </ul>
 
+  <var-divider description="书架区"/>
+
+  <ul class="bookshelves-container">
+    <div class="bookshelf" v-for="bookshelf in bookshelves">
+      <Bookshelf
+        :title="bookshelf.title"
+        @click="goBookshelf(bookshelf.id)">
+      </Bookshelf>
+    </div>
+  </ul>
+  <var-divider description="文字描述"/>
   <ul style="display: flex; flex-direction: row; flex-wrap: wrap">
     <div
       v-for="book in books"
       style="width: 200px; height: 300px; margin: 1rem"
     >
-      <!-- <var-image width="100px" height="160px" fit="cover" :src="getCoverUrl(book.id)" alt="" srcset="" /> -->
       <var-card
         :src="getCoverUrl(book.id)"
         :title="book.name"
@@ -94,3 +100,15 @@ getBooks();
     </div>
   </ul>
 </template>
+
+<style scoped>
+.bookshelves-container {
+  white-space: nowrap;
+  overflow-x: scroll;
+}
+
+.bookshelf {
+  display: inline-block;
+  margin: 0.5rem;
+}
+</style>

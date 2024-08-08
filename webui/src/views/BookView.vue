@@ -1,7 +1,7 @@
 <script setup>
 import {ref, watch} from "vue";
 import {useRoute} from "vue-router";
-import {fetchBookById} from "../api";
+import {fetchBookById, getBookCoverById} from "../api";
 
 const route = useRoute();
 let book = ref({
@@ -21,7 +21,7 @@ watch(
         console.log(result);
         book.value.title = result.name;
         book.value.cover =
-          "http://localhost:8080/api/v1/books/" + result.id + "/cover";
+          getBookCoverById(result.id);
         book.value.author = result.author;
         book.value.description = result.description;
         book.value.file = result.path;
@@ -32,6 +32,12 @@ watch(
   {immediate: true}
 );
 </script>
+
+<style scoped>
+.content {
+  padding: 1rem;
+}
+</style>
 
 <template>
   <var-app-bar>
@@ -77,7 +83,7 @@ watch(
   </var-app-bar>
 
 
-  <var-row :gutter="[10, 60]">
+  <var-row class="content" :gutter="[10, 60]">
     <var-col :span="5">
       <div class="cover">
         <var-image
