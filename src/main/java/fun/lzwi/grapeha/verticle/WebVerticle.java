@@ -3,6 +3,7 @@ package fun.lzwi.grapeha.verticle;
 import fun.lzwi.grapeha.api.BookAPI;
 import fun.lzwi.grapeha.api.BookShelfAPI;
 import fun.lzwi.grapeha.api.UserAPI;
+import fun.lzwi.grapeha.config.ConfigUtils;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -16,6 +17,9 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 
+import java.io.File;
+import java.io.IOException;
+
 public class WebVerticle extends AbstractVerticle {
   Logger logger = LoggerFactory.getLogger(WebVerticle.class);
 
@@ -26,7 +30,9 @@ public class WebVerticle extends AbstractVerticle {
     HttpServer server = vertx.createHttpServer();
     Router router = Router.router(vertx);
     webui(router);
-    router.route().handler(CorsHandler.create().allowedMethod(HttpMethod.GET).allowedMethod(HttpMethod.POST));
+    router
+        .route()
+        .handler(CorsHandler.create().allowedMethod(HttpMethod.GET).allowedMethod(HttpMethod.POST));
     router.route().handler(BodyHandler.create());
     api(router);
     server.requestHandler(router).listen(8080);
@@ -34,17 +40,27 @@ public class WebVerticle extends AbstractVerticle {
   }
 
   public void webui(Router router) {
-    router.route("/*").handler(StaticHandler.create("D:/Projects/Java/grapeha/webui/dist"));
+    boolean dev = ConfigUtils.isDev();
+    try {
+      String webui;
+      if (dev) {
+        webui = new File("./webui/dist").getCanonicalPath().replace("\\", "/");
+      } else {
+        webui = new File(ConfigUtils.getWebuiPath()).getCanonicalPath().replace("\\", "/");
+      }
+      router.route("/*").handler(StaticHandler.create(webui));
+    } catch (IOException e) {
+      logger.error("webui路径错误", e);
+    }
   }
 
   public void api(Router router) {
-    router.get("/api/v1/system").respond(ctx -> Future.succeededFuture(new JsonObject().put("hello", "world")));
+    router
+        .get("/api/v1/system")
+        .respond(ctx -> Future.succeededFuture(new JsonObject().put("hello", "world")));
 
     BookAPI.init(router, vertx);
     UserAPI.init(router, vertx);
     BookShelfAPI.init(router, vertx);
-
   }
-
-
 }
