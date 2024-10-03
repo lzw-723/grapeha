@@ -1,0 +1,10 @@
+
+.idea/
+.mvn/
+.vscode/
+.git/
+
+data/
+config/
+src/
+webui/
