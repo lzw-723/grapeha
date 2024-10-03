@@ -25,10 +25,10 @@ function readResource(res, label) {
   console.log(res);
   // res_url.value = window.location.origin+ res;
   let isXhtml = res.endsWith(".xhtml");
-  res_url.value = "http://localhost:8080" + res;
+  res_url.value = res;
   title.value = book.value.name + " - " + label;
   fetch(res_url.value).then(r => r.text()).then(t => {
-    let base = res_url.value.substring(0, res_url.value.lastIndexOf("/") + 1);
+    let base = window.location.origin + res;
     const h = new DOMParser().parseFromString(t, isXhtml ? "application/xhtml+xml" : "text/html");
     // 处理图片
     let imgs = h.getElementsByTagName("img");

@@ -27,7 +27,7 @@ async function getBookShelves() {
 }
 
 function getCoverUrl(id) {
-  return "http://localhost:8080/api/v1/books/" + id + "/cover";
+  return "/api/v1/books/" + id + "/cover";
 }
 
 function goBookshelf(id) {

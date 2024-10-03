@@ -4,7 +4,7 @@ const token = getToken();
 const username = getUsername();
 
 function fetchUserToken(username, password) {
-  return fetch("http://localhost:8080/api/v1/users/" + username + "/token", {
+  return fetch("/api/v1/users/" + username + "/token", {
     method: "POST", body: JSON.stringify({password})
   })
     .then((response) => response.json()).then((data) => {
@@ -17,7 +17,7 @@ function fetchUserToken(username, password) {
 }
 
 function fetchBooksInBookshelf(id) {
-  return fetch(`http://localhost:8080/api/v1/bookshelves/${id}/books`, {
+  return fetch(`/api/v1/bookshelves/${id}/books`, {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },
@@ -27,7 +27,7 @@ function fetchBooksInBookshelf(id) {
 }
 
 function fetchBooks() {
-  return fetch("http://localhost:8080/api/v1/books", {
+  return fetch("/api/v1/books", {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },
@@ -37,7 +37,7 @@ function fetchBooks() {
 }
 
 function fetchBookById(id) {
-  return fetch(`http://localhost:8080/api/v1/books/${id}`, {
+  return fetch(`/api/v1/books/${id}`, {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },
@@ -47,11 +47,11 @@ function fetchBookById(id) {
 }
 
 function getBookCoverById(id) {
-  return `http://localhost:8080/api/v1/books/${id}/cover`;
+  return `/api/v1/books/${id}/cover`;
 }
 
 function fetchBookshelves() {
-  return fetch("http://localhost:8080/api/v1/bookshelves", {
+  return fetch("/api/v1/bookshelves", {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },
@@ -60,7 +60,7 @@ function fetchBookshelves() {
 }
 
 function fetchBookshelfById(id) {
-  return fetch(`http://localhost:8080/api/v1/bookshelves/${id}`, {
+  return fetch(`/api/v1/bookshelves/${id}`, {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },
@@ -69,7 +69,7 @@ function fetchBookshelfById(id) {
 }
 
 function fetchBookContent(id) {
-  return fetch(`http://localhost:8080/api/v1/books/${id}/content`, {
+  return fetch(`/api/v1/books/${id}/content`, {
     headers: {
       Authorization: `Bearer ${token.value}`,
     },
@@ -78,7 +78,7 @@ function fetchBookContent(id) {
 }
 
 function getBookResourceById(id, res) {
-  return `http://localhost:8080/api/v1/books/${id}/resources/${res}`;
+  return `/api/v1/books/${id}/resources/${res}`;
 }
 
 /**
@@ -93,7 +93,7 @@ async function checkLogin() {
   if (token.value == null || username.value == null || username.value === "" || token.value === "") {
     throw Error("没有登录记录！");
   }
-  let resp = await fetch(`http://localhost:8080/api/v1/users/${username.value}`, {
+  let resp = await fetch(`/api/v1/users/${username.value}`, {
     headers: {
       authorization: `Bearer ${token.value}`,
     }
