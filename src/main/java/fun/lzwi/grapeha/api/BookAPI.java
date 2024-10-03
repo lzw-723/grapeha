@@ -1,10 +1,12 @@
 package fun.lzwi.grapeha.api;
 
 import fun.lzwi.epubime.easy.EasyEpub;
+import fun.lzwi.epubime.easy.EasyHTML;
 import fun.lzwi.grapeha.AuthUtils;
 import fun.lzwi.grapeha.db.repository.BookRepository;
 import fun.lzwi.grapeha.library.CacheUtils;
 import fun.lzwi.grapeha.library.reader.EpubReader;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.impl.logging.Logger;
@@ -16,6 +18,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class BookAPI {
@@ -93,8 +96,13 @@ public class BookAPI {
                         try {
                           EasyEpub epub = new EasyEpub(book.getPath());
                           resp.put("code", 200);
-                          resp.put("msg", "");
-                          resp.put("data", epub.getContent());
+                          resp.put("msg", "获取书籍目录成功。");
+                          List<EasyEpub.EasyContentItem> items = epub.getContent();
+                          items.forEach(
+                              i -> {
+                                i.setHref("/api/v1/books/" + bookId + "/resources/" + i.getHref());
+                              });
+                          resp.put("data", items);
                         } catch (ParserConfigurationException | SAXException | IOException e) {
                           resp.put("code", 400);
                           resp.put("msg", e.getMessage());
@@ -144,6 +152,19 @@ public class BookAPI {
                             .putHeader(
                                 "content-type", EpubReader.getResourceType(book.getPath(), href));
                         return EpubReader.getResource(book.getPath(), href);
+                      })
+                  .compose(
+                      buffer -> {
+                        if (ctx.response()
+                            .headers()
+                            .get("content-type")
+                            .equals("application/xhtml+xml")) {
+                          String content = buffer.toString(StandardCharsets.UTF_8);
+                          logger.info("content: %s".formatted(content));
+                          EasyHTML html = new EasyHTML(content);
+                          return Future.succeededFuture(html.getString());
+                        }
+                        return Future.succeededFuture(buffer);
                       });
             });
   }

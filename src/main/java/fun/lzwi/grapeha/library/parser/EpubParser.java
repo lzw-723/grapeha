@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class EpubParser {
-  private static Logger logger = LoggerFactory.getLogger(EpubParser.class);
+  private static final Logger logger = LoggerFactory.getLogger(EpubParser.class);
 
   public static Book parser(File file) throws ParserConfigurationException, IOException, SAXException {
     Book book = new Book();

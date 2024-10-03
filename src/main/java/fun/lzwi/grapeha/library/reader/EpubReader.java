@@ -4,6 +4,8 @@ import fun.lzwi.epubime.Resource;
 import fun.lzwi.epubime.easy.EasyEpub;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -14,6 +16,8 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 public class EpubReader {
+
+  private static final Logger logger = LoggerFactory.getLogger(EpubReader.class);
 
   private static InputStream getIn(String epubPath, String href) {
     try {
@@ -30,7 +34,7 @@ public class EpubReader {
       EasyEpub epub = new EasyEpub(epubPath);
       return epub.getResources().stream().filter((r) -> r.getHref().equals(href)).findFirst().get().getType();
     } catch (ParserConfigurationException | SAXException | IOException e) {
-      e.printStackTrace();
+      logger.error("获取%s的%s资源失败！".formatted(epubPath, href), e);
     }
     return "application/xhtml+xml";
   }
@@ -69,7 +73,7 @@ public class EpubReader {
         inputStream.close();
 
       } catch (Exception e) {
-        e.printStackTrace();
+        logger.error("读取epub文件%s的%s失败".formatted(epubPath, href), e);
       }
       return res;
     });

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.zip.CRC32;
 
 public class CacheUtils {
-  private static Logger logger = LoggerFactory.getLogger(CacheUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(CacheUtils.class);
 
   public static String getBookCoverPath(String bookPath) {
     return String.format(ConfigUtils.getCachePath() + "/cover/%s.jpg", bookPath.hashCode());

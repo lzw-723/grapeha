@@ -16,7 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class BookUtils {
 
-  private static Logger logger = LoggerFactory.getLogger(BookUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(BookUtils.class);
 
   static boolean checkBook(String path) {
     return path.endsWith(".epub");
