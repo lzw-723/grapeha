@@ -52,65 +52,6 @@ public class ConfigUtils {
     if (!configPath.resolve("cache").toFile().exists()) {
       configPath.resolve("cache").toFile().mkdirs();
     }
-    if (!configPath.resolve("data").resolve("webui").toFile().exists()) {
-      configPath.resolve("data").resolve("webui").toFile().mkdirs();
-    }
-    File target = new File(ConfigUtils.getWebuiPath());
-    try {
-      if (!target.exists() || Files.list(target.toPath()).findAny().isEmpty()) {
-        // 解压webui文件到data/webui
-        logger.warn("复制webui文件到data/webui");
-        URL webui = ConfigUtils.class.getClassLoader().getResource("webui.zip");
-
-        Files.deleteIfExists(target.toPath());
-        if (webui != null) {
-          unzipFile(webui.openStream(), target);
-        }
-      }
-    } catch (IOException e) {
-      logger.warn("复制webui文件到data/webui失败", e);
-    }
-  }
-
-  private static void unzipFile(InputStream inputStream, File directory) {
-    try {
-      if (!directory.exists()) {
-        directory.mkdirs();
-      }
-
-      ZipInputStream zipIn = new ZipInputStream(inputStream);
-      ZipEntry entry;
-
-      // 循环读取ZIP文件中的每个条目
-      while ((entry = zipIn.getNextEntry()) != null) {
-        String entryName = entry.getName();
-        // 忽略目录条目，只处理文件条目
-        if (!entry.isDirectory()) {
-          File targetFile = new File(directory, entryName);
-          // 创建父目录（如果需要）
-          targetFile.getParentFile().mkdirs();
-
-          try {
-            FileOutputStream fos = new FileOutputStream(targetFile);
-            int length;
-            byte[] buffer = new byte[4096];
-            while ((length = zipIn.read(buffer)) > 0) {
-              fos.write(buffer, 0, length);
-            }
-            fos.close();
-            logger.info("成功解压文件: " + entryName);
-          } catch (Exception e) {
-            logger.warn("解压文件中%s时出错".formatted(targetFile.getPath()), e);
-          }
-        }
-        zipIn.closeEntry();
-      }
-
-      zipIn.close();
-      logger.info("解压文件完成");
-    } catch (Exception e) {
-      logger.warn("解压文件到%s出错".formatted(directory.getPath()), e);
-    }
   }
 
   public static String getCachePath() {
@@ -123,8 +64,4 @@ public class ConfigUtils {
     return configPath.resolve("data").toString();
   }
 
-  public static String getWebuiPath() {
-    Path dataConfig = Paths.get(getDataPath());
-    return dataConfig.resolve("webui").toString();
-  }
 }

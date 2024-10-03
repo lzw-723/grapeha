@@ -40,18 +40,7 @@ public class WebVerticle extends AbstractVerticle {
   }
 
   public void webui(Router router) {
-    boolean dev = ConfigUtils.isDev();
-    try {
-      String webui;
-      if (dev) {
-        webui = new File("./webui/dist").getCanonicalPath().replace("\\", "/");
-      } else {
-        webui = new File(ConfigUtils.getWebuiPath()).getCanonicalPath().replace("\\", "/");
-      }
-      router.route("/*").handler(StaticHandler.create(webui));
-    } catch (IOException e) {
-      logger.error("webui路径错误", e);
-    }
+    router.route("/*").handler(StaticHandler.create());
   }
 
   public void api(Router router) {
