@@ -1,27 +1,12 @@
 <script setup>
+import "@shoelace-style/shoelace/dist/components/card/card.js"
 const props = defineProps({
   title: String,
 });
 </script>
 
 <template>
-  <div>
-    <div
-      class="bookshelf var-elevation--2"
-      v-ripple>{{ props.title }}
-    </div>
-  </div>
+  <sl-card>
+    {{ props.title }}
+  </sl-card>
 </template>
-
-<style scoped>
-.bookshelf {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 368px;
-  height: 260px;
-  cursor: pointer;
-  transition: background-color 0.25s;
-  background-color: var(--color-surface-container-highest);
-}
-</style>

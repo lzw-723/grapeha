@@ -1,6 +1,8 @@
 <script setup>
 import {reactive, ref, watch} from "vue";
 import {useRouter, useRoute} from "vue-router";
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/input/input.js';
 
 import {getToken, getUsername} from "../store";
 import {checkLogin, fetchUserToken} from "../api.js";
@@ -37,38 +39,23 @@ checkLogin().then(r => succeed.value = true)
 </script>
 
 <template>
-  <div class="content">
-    <var-form ref="form" scroll-to-error="start">
-      <var-space direction="column" justify="center">
-        <var-input
-          type="text"
-          name="username"
-          placeholder="用户名"
-          :rules="[(v) => !!v || '用户名不能为空']"
-          v-model="formData.username"
-        />
-        <var-input
-          type="password"
-          autocomplete="current-password"
-          placeholder="密码"
-          :rules="[(v) => !!v || '密码不能为空']"
-          v-model="formData.password"
-        />
-        <var-button block type="primary" @click="login">
-          登录
-        </var-button>
-      </var-space>
-    </var-form>
-  </div>
+
+  <form ref="form">
+    <sl-input
+      type="text"
+      name="username"
+      placeholder="用户名"
+      @slInput="formData.username = $event.target.value"
+    />
+    <sl-input
+      type="password"
+      autocomplete="current-password"
+      placeholder="密码"
+      @slInput="formData.password = $event.target.value"
+    />
+    <sl-button @click="login">
+      登录
+    </sl-button>
+  </form>
 
 </template>
-
-<style scoped>
-.content {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-</style>

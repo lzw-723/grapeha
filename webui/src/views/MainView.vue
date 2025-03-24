@@ -1,9 +1,10 @@
 <script setup>
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import {getToken, getUsername} from "../store";
 import {checkLogin, fetchBooks, fetchBookshelves} from "../api";
 import Bookshelf from "../components/Bookshelf.vue";
+import Book from "../components/Book.vue";
+import Appbar from "../components/Appbar.vue";
 
 const router = useRouter();
 
@@ -42,11 +43,6 @@ function goLogin() {
   router.push("/login");
 }
 
-function logout() {
-  getUsername().value = "";
-  getToken().value = "";
-  router.push("/login");
-}
 
 checkLogin()
   .then((result) => {
@@ -63,52 +59,35 @@ getBooks();
 </script>
 
 <template>
-  <var-app-bar title="GrapeHA">
-    <template #right>
-      <var-button color="transparent"
-                  text-color="#fff"
-                  round
-                  text
-                  @click="logout">
-        <var-icon name="power" :size="24"/>
-      </var-button>
-    </template>
-  </var-app-bar>
+  <Appbar title="主页"/>
 
-  <var-divider description="书架区"/>
+  <sl-divider></sl-divider>
 
-  <ul class="bookshelves-container">
-    <div class="bookshelf" v-for="bookshelf in bookshelves">
+
+  <ul class="flex flex-row overflow-scroll">
       <Bookshelf
+        class="flex-auto" v-for="bookshelf in bookshelves"
         :title="bookshelf.title"
         @click="goBookshelf(bookshelf.id)">
       </Bookshelf>
-    </div>
   </ul>
-  <var-divider description="文字描述"/>
-  <ul style="display: flex; flex-direction: row; flex-wrap: wrap">
-    <div
-      v-for="book in books"
-      style="width: 200px; height: 300px; margin: 1rem"
-    >
-      <var-card
-        :src="getCoverUrl(book.id)"
-        :title="book.name"
-        :subtitle="book.author"
-        @click="goBook(book.id)"
-      />
-    </div>
+  <sl-divider></sl-divider>
+
+  <ul class="book-list">
+    <Book v-for="book in books"
+          class=""
+          :cover="getCoverUrl(book.id)"
+          :title="book.name"
+          :author="book.author"
+          @click="goBook(book.id)"
+    />
   </ul>
 </template>
 
-<style scoped>
-.bookshelves-container {
-  white-space: nowrap;
-  overflow-x: scroll;
-}
-
-.bookshelf {
-  display: inline-block;
-  margin: 0.5rem;
+<style>
+.book-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 </style>

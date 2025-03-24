@@ -1,8 +1,13 @@
 <script setup>
 
 import {ref, watch} from "vue";
+import "@shoelace-style/shoelace/dist/components/menu/menu.js";
+import "@shoelace-style/shoelace/dist/components/menu-item/menu-item.js";
+import "@shoelace-style/shoelace/dist/components/button/button.js";
+import "@shoelace-style/shoelace/dist/components/include/include.js";
 import {fetchBookById, fetchBookContent, getBookResourceById} from "../api.js";
 import {useRoute} from "vue-router";
+import Appbar from "../components/Appbar.vue";
 
 const route = useRoute();
 const book = ref({});
@@ -69,38 +74,13 @@ watch(() => route.params.id, (id) => {
 </script>
 
 <template>
-  <var-app-bar :title="title">
-    <template #left>
-      <var-button
-        color="transparent"
-        text-color="#fff"
-        round
-        text
-        @click="$router.back()"
-      >
-        <var-icon name="chevron-left" :size="24"/>
-      </var-button>
-      <var-button
-        color="transparent"
-        text-color="#fff"
-        round
-        text
-        @click="$router.push('/')"
-      >
-        <var-icon name="home" :size="24"/>
-      </var-button>
-    </template>
-  </var-app-bar>
-  <var-popup position="right" v-model:show="showContent">
-    <ol>
-      <var-cell v-for="item in content">
-        <var-link @click="readResource(item.href, item.label)">{{ item.label }}</var-link>
-      </var-cell>
-    </ol>
-  </var-popup>
-  <var-fab type="default" inactive-icon="format-list-checkbox" @click="showContent = !showContent"/>
+  <Appbar/>
+  <sl-menu style="max-width: 200px;">
+    <sl-menu-item v-for="item in content" @click="readResource(item.href, item.label)">{{ item.label }}</sl-menu-item>
+  </sl-menu>
 
   <iframe class="read-area" :srcdoc="html"></iframe>
+  <sl-include :src="res_url"></sl-include>
 </template>
 
 <style scoped>

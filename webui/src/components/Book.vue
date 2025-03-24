@@ -1,5 +1,5 @@
 <script setup>
-import {ref, watch, defineProps} from "vue";
+import "@shoelace-style/shoelace/dist/components/card/card.js"
 
 const props = defineProps({
   cover: String,
@@ -9,18 +9,27 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="book">
-    <var-card
-      :src="props.cover"
-      :title="props.title"
-      :subtitle="props.author"
+  <sl-card>
+    <img
+      slot="image"
+      :src="cover"
+      class="card-image"
+      loading="lazy"
+      decoding="async"
+      alt="A kitten walks towards camera on top of pallet."
     />
-  </div>
+    <div slot="header">
+      {{ props.title}}
+      <sl-icon-button name="gear" label="Settings"></sl-icon-button>
+    </div>
+      {{ props.author}}
+  </sl-card>
 </template>
 
 <style scoped>
-.book {
-  width: 200px;
+.card-image {
+  width: 100%;
   height: 300px;
+  object-fit: cover;
 }
 </style>

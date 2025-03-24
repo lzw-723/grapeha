@@ -1,7 +1,10 @@
 <script setup>
 import {ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/badge/badge.js';
 import {fetchBookById, getBookCoverById} from "../api";
+import Appbar from "../components/Appbar.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -47,88 +50,35 @@ function goRead(id) {
 </style>
 
 <template>
-  <var-app-bar>
-    <template #left>
-      <var-button
-        color="transparent"
-        text-color="#fff"
-        round
-        text
-        @click="$router.back()"
-      >
-        <var-icon name="chevron-left" :size="24"/>
-      </var-button>
-      <var-button
-        color="transparent"
-        text-color="#fff"
-        round
-        text
-        @click="$router.push('/')"
-      >
-        <var-icon name="home" :size="24"/>
-      </var-button>
-    </template>
+  <Appbar :title="book.title"/>
+  <div>
 
-    <template #right>
-      <var-menu>
-        <var-button
-          color="transparent"
-          text-color="#fff"
-          round
-          text
-        >
-          <var-icon name="menu" :size="24"/>
-        </var-button>
+    <img
+      :src="book.cover"
+      class="cover"
+      alt="cover"/>
+    <h1>{{ book.title }}</h1>
 
-        <template #menu>
-          <var-cell ripple>选项卡</var-cell>
-          <var-cell ripple>选项卡</var-cell>
-          <var-cell ripple>选项卡</var-cell>
-        </template>
-      </var-menu>
-    </template>
-  </var-app-bar>
+    <sl-badge>{{ book.author }}</sl-badge>
+    <sl-badge>{{ book.file }}</sl-badge>
 
+    <!-- <var-cell>文件大小：</var-cell>
+    <var-cell>文件格式：</var-cell>
+    <var-cell>文件来源：</var-cell> -->
+    <p>
+      {{ book.description || "暂无介绍" }}
+    </p>
 
-  <var-row class="content" :gutter="[10, 60]">
-    <var-col :span="5">
-      <div class="cover">
-        <var-image
-          width="300px"
-          height="400px"
-          radius="10"
-          lazy
-          fit="cover"
-          :src="book.cover"
-        />
-      </div>
-    </var-col>
-    <var-col :span="16">
-      <ul class="details">
-        <var-cell
-        ><h1>{{ book.title }}</h1></var-cell
-        >
-
-        <var-cell>
-          <var-space>
-            <var-chip>{{ book.author }}</var-chip>
-            <var-chip plain>{{ book.file }}</var-chip>
-          </var-space>
-        </var-cell>
-        <!-- <var-cell>文件大小：</var-cell>
-        <var-cell>文件格式：</var-cell>
-        <var-cell>文件来源：</var-cell> -->
-        <var-cell>
-          <!-- style="max-width: 170px" -->
-          <var-ellipsis expand-trigger="click" :line-clamp="3" :tooltip="false">
-            {{ book.description || "暂无介绍" }}
-          </var-ellipsis>
-        </var-cell>
-        <var-space :size="[10, 10]">
-          <var-button text outline type="primary" @click="goRead(book.id)">阅读</var-button>
-          <var-button text type="primary">收藏</var-button>
-        </var-space>
-      </ul>
-    </var-col>
-  </var-row>
+    <sl-button @click="goRead(book.id)">阅读</sl-button>
+    <sl-button>收藏</sl-button>
+  </div>
 </template>
+
+
+<style scoped>
+.cover {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+</style>
