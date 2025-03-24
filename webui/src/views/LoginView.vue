@@ -6,6 +6,7 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 
 import {getToken, getUsername} from "../store";
 import {checkLogin, fetchUserToken} from "../api.js";
+import Appbar from "../components/Appbar.vue";
 
 const formData = reactive({
   username: "",
@@ -39,8 +40,11 @@ checkLogin().then(r => succeed.value = true)
 </script>
 
 <template>
+<Appbar/>
+  <div class="top-padding">
 
-  <form ref="form">
+  </div>
+  <form class="login-form">
     <sl-input
       type="text"
       name="username"
@@ -53,9 +57,23 @@ checkLogin().then(r => succeed.value = true)
       placeholder="密码"
       @slInput="formData.password = $event.target.value"
     />
-    <sl-button @click="login">
+    <sl-button class="login-button" @click="login">
       登录
     </sl-button>
   </form>
 
 </template>
+
+<style scoped>
+.top-padding {
+  height: 10rem;
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+</style>

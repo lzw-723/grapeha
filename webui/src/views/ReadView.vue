@@ -1,6 +1,7 @@
 <script setup>
 
 import {ref, watch} from "vue";
+import "@shoelace-style/shoelace/dist/components/drawer/drawer.js";
 import "@shoelace-style/shoelace/dist/components/menu/menu.js";
 import "@shoelace-style/shoelace/dist/components/menu-item/menu-item.js";
 import "@shoelace-style/shoelace/dist/components/button/button.js";
@@ -18,8 +19,7 @@ const html = ref("");
 
 const title = ref("");
 
-const showAppBar = ref(true);
-const showContent = ref(false);
+const openMenu = ref(false);
 
 function getContent() {
   fetchBookContent().then(r => content.value = r).catch(err => console.log(err));
@@ -75,9 +75,13 @@ watch(() => route.params.id, (id) => {
 
 <template>
   <Appbar/>
-  <sl-menu style="max-width: 200px;">
-    <sl-menu-item v-for="item in content" @click="readResource(item.href, item.label)">{{ item.label }}</sl-menu-item>
-  </sl-menu>
+  <sl-button class="menu-button" @click="openMenu = !openMenu">目录</sl-button>
+  <sl-drawer label="Drawer" class="drawer-focus" :open="openMenu" @sl-after-hide="openMenu = false">
+    <sl-button slot="footer" variant="primary" @click="openMenu = !openMenu">Close</sl-button>
+    <sl-menu>
+      <sl-menu-item v-for="item in content" @click="readResource(item.href, item.label)">{{ item.label }}</sl-menu-item>
+    </sl-menu>
+  </sl-drawer>
 
   <iframe class="read-area" :srcdoc="html"></iframe>
   <sl-include :src="res_url"></sl-include>

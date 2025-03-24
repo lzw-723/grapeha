@@ -1,11 +1,14 @@
 <script setup>
-
+import {defineProps, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {getToken, getUsername} from "../store.js";
 
 const props = defineProps(
   {
-    title: String,
+    title: {
+      type: String,
+      default: "grapeha",
+    },
   }
 )
 
@@ -17,14 +20,28 @@ function logout() {
   getToken().value = "";
   router.push("/login");
 }
+
+// 设置head标题
+watch(
+  () => props.title,
+  (v) => {
+    document.title = "grapeha - " + props.title;
+  },
+  {immediate: true}
+)
 </script>
 
 <template>
   <div class="app-bar">
-    <sl-button @click="$router.back()">返回</sl-button>
-    <sl-button @click="$router.push('/')">主页</sl-button>
-    <h1>{{props.title}}</h1>
-    <sl-button v-if="route.path === '/'" @click="logout">退出</sl-button>
+    <div v-if="route.path !== '/login'">
+      <sl-button @click="$router.back()">返回</sl-button>
+      <sl-button @click="$router.push('/')">主页</sl-button>
+    </div>
+    <h1>{{ props.title }}</h1>
+    <div>
+      <sl-button v-show="route.path === '/'" @click="logout">退出</sl-button>
+      <sl-button v-show="route.path === '/'">菜单</sl-button>
+    </div>
   </div>
 </template>
 
@@ -42,6 +59,12 @@ function logout() {
   padding: 0;
   text-align: center;
   font-size: 1rem;
+}
+
+.app-bar div {
+  flex-grow: 0.2;
+  display: flex;
+  justify-items: end;
 }
 
 </style>

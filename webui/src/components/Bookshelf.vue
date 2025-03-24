@@ -10,3 +10,7 @@ const props = defineProps({
     {{ props.title }}
   </sl-card>
 </template>
+
+<style scoped>
+
+</style>
