@@ -79,7 +79,7 @@ watch(() => route.params.id, (id) => {
   <sl-drawer label="Drawer" class="drawer-focus" :open="openMenu" @sl-after-hide="openMenu = false">
     <sl-button slot="footer" variant="primary" @click="openMenu = !openMenu">Close</sl-button>
     <sl-menu>
-      <sl-menu-item v-for="item in content" @click="readResource(item.href, item.label)">{{ item.label }}</sl-menu-item>
+      <sl-menu-item v-for="item in content" @click="readResource(item.content, item.title)">{{ item.title }}</sl-menu-item>
     </sl-menu>
   </sl-drawer>
 

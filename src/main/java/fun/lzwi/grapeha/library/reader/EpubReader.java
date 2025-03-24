@@ -1,15 +1,14 @@
 package fun.lzwi.grapeha.library.reader;
 
-import fun.lzwi.epubime.Resource;
-import fun.lzwi.epubime.easy.EasyEpub;
+import fun.lzwi.epubime.epub.EpubParseException;
+import fun.lzwi.epubime.epub.EpubParser;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -21,19 +20,24 @@ public class EpubReader {
 
   private static InputStream getIn(String epubPath, String href) {
     try {
-      EasyEpub epub = new EasyEpub(epubPath);
-      Resource resource = epub.getResource(href);
-      return resource.getInputStream();
-    } catch (ParserConfigurationException | SAXException | IOException e) {
+      EpubParser parser = new EpubParser(new File(epubPath));
+      fun.lzwi.epubime.epub.EpubBook book = parser.parse();
+      fun.lzwi.epubime.epub.EpubResource resource =
+        book.getResources().stream().filter((r) -> r.getHref().equals(href)).findFirst().get();
+      return new ByteArrayInputStream(resource.getData());
+    } catch (EpubParseException e) {
       throw new RuntimeException(e);
     }
   }
 
   public static String getResourceType(String epubPath, String href) {
     try {
-      EasyEpub epub = new EasyEpub(epubPath);
-      return epub.getResources().stream().filter((r) -> r.getHref().equals(href)).findFirst().get().getType();
-    } catch (ParserConfigurationException | SAXException | IOException e) {
+      EpubParser parser = new EpubParser(new File(epubPath));
+      fun.lzwi.epubime.epub.EpubBook book = parser.parse();
+      fun.lzwi.epubime.epub.EpubResource resource =
+        book.getResources().stream().filter((r) -> r.getHref().equals(href)).findFirst().get();
+      return resource.getType();
+    } catch (EpubParseException e) {
       logger.error("获取%s的%s资源失败！".formatted(epubPath, href), e);
     }
     return "application/xhtml+xml";

@@ -1,7 +1,8 @@
 package fun.lzwi.grapeha.api;
 
-import fun.lzwi.epubime.easy.EasyEpub;
-import fun.lzwi.epubime.easy.EasyHTML;
+import fun.lzwi.epubime.epub.EpubChapter;
+import fun.lzwi.epubime.epub.EpubParseException;
+import fun.lzwi.epubime.epub.EpubParser;
 import fun.lzwi.grapeha.AuthUtils;
 import fun.lzwi.grapeha.db.repository.BookRepository;
 import fun.lzwi.grapeha.library.CacheUtils;
@@ -17,6 +18,8 @@ import io.vertx.ext.web.handler.JWTAuthHandler;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -94,16 +97,13 @@ public class BookAPI {
                   .map(
                       book -> {
                         try {
-                          EasyEpub epub = new EasyEpub(book.getPath());
+                          EpubParser parser = new EpubParser(new File(book.getPath()));
+                          fun.lzwi.epubime.epub.EpubBook epubBook = parser.parse();
+                          List<EpubChapter> chapters = epubBook.getChapters();
                           resp.put("code", 200);
                           resp.put("msg", "获取书籍目录成功。");
-                          List<EasyEpub.EasyContentItem> items = epub.getContent();
-                          items.forEach(
-                              i -> {
-                                i.setHref("/api/v1/books/" + bookId + "/resources/" + i.getHref());
-                              });
-                          resp.put("data", items);
-                        } catch (ParserConfigurationException | SAXException | IOException e) {
+                          resp.put("data", chapters);
+                        } catch (EpubParseException e) {
                           resp.put("code", 400);
                           resp.put("msg", e.getMessage());
                         }
@@ -112,31 +112,31 @@ public class BookAPI {
                       });
             });
 
-    router
-        .get("/api/v1/books/:bookId/resources")
-        .respond(
-            ctx -> {
-              String bookId = ctx.pathParam("bookId");
-              return BookRepository.getInstance()
-                  .findById(bookId)
-                  .onFailure(Throwable::printStackTrace)
-                  .map(
-                      book -> {
-                        JsonObject resp = new JsonObject();
-                        try {
-                          EasyEpub epub = new EasyEpub(book.getPath());
-                          List<EasyEpub.EasyResource> resources = epub.getResources();
-                          resp.put("code", 200);
-                          resp.put("msg", "");
-                          resp.put("data", resources);
-                        } catch (ParserConfigurationException | SAXException | IOException e) {
-                          logger.error("获取BookId: %s资源失败！".formatted(bookId), e);
-                          resp.put("code", 400);
-                          resp.put("msg", e.getMessage());
-                        }
-                        return resp;
-                      });
-            });
+//    router
+//        .get("/api/v1/books/:bookId/resources")
+//        .respond(
+//            ctx -> {
+//              String bookId = ctx.pathParam("bookId");
+//              return BookRepository.getInstance()
+//                  .findById(bookId)
+//                  .onFailure(Throwable::printStackTrace)
+//                  .map(
+//                      book -> {
+//                        JsonObject resp = new JsonObject();
+//                        try {
+//                          EasyEpub epub = new EasyEpub(book.getPath());
+//                          List<EasyEpub.EasyResource> resources = epub.getResources();
+//                          resp.put("code", 200);
+//                          resp.put("msg", "");
+//                          resp.put("data", resources);
+//                        } catch (ParserConfigurationException | SAXException | IOException e) {
+//                          logger.error("获取BookId: %s资源失败！".formatted(bookId), e);
+//                          resp.put("code", 400);
+//                          resp.put("msg", e.getMessage());
+//                        }
+//                        return resp;
+//                      });
+//            });
 
     router
         .getWithRegex("/api/v1/books/(?<bookId>[^\\\\/]+)/resources/(?<href>.*)")
@@ -161,8 +161,7 @@ public class BookAPI {
                             .equals("application/xhtml+xml")) {
                           String content = buffer.toString(StandardCharsets.UTF_8);
                           logger.info("content: %s".formatted(content));
-                          EasyHTML html = new EasyHTML(content);
-                          return Future.succeededFuture(html.getString());
+                          return Future.succeededFuture(content);
                         }
                         return Future.succeededFuture(buffer);
                       });

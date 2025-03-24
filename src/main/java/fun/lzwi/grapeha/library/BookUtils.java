@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 
+import fun.lzwi.epubime.epub.EpubParseException;
 import fun.lzwi.grapeha.config.ConfigUtils;
 import fun.lzwi.grapeha.library.bean.Book;
 import fun.lzwi.grapeha.library.parser.EpubParser;
@@ -32,7 +33,7 @@ public class BookUtils {
     logger.info("扫描图书文件：" + bookPath);
     try {
       return EpubParser.parser(new File(bookPath));
-    } catch (ParserConfigurationException | IOException | SAXException e) {
+    } catch (ParserConfigurationException | IOException | SAXException | EpubParseException e) {
       logger.warn("扫描图书文件：%s失败！".formatted(bookPath), e);
     }
     return null;
@@ -79,15 +80,15 @@ public class BookUtils {
     try {
       InputStream in = EpubParser.getCoverInputStream(bookPath);
       Path path =
-          Paths.get(
-              String.format(ConfigUtils.getCachePath() + "/cover/%s.jpg", bookPath.hashCode()));
+        Paths.get(
+          String.format(ConfigUtils.getCachePath() + "/cover/%s.jpg", bookPath.hashCode()));
       // 检查目录是否存在
       if (!Files.exists(path.getParent())) {
         Files.createDirectories(path.getParent());
       }
       resizeImage(in, path.toString(), 400, 600);
       logger.info("为%s生成封面。".formatted(bookPath));
-    } catch (IOException | ParserConfigurationException | SAXException e) {
+    } catch (EpubParseException | IOException e) {
       logger.warn("为%s生成封面失败！".formatted(bookPath), e);
     }
     return true;
@@ -96,10 +97,11 @@ public class BookUtils {
 
   /**
    * 缩放图片到指定尺寸
-   * @param in 源图片输入流
+   *
+   * @param in       源图片输入流
    * @param destPath 目标图片路径
-   * @param width 目标宽度
-   * @param height 目标高度
+   * @param width    目标宽度
+   * @param height   目标高度
    * @return 是否缩放成功
    */
   public static boolean resizeImage(InputStream in, String destPath, int width, int height) {

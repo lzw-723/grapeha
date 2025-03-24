@@ -75,7 +75,12 @@
     <dependency>
       <groupId>com.github.lzw-723</groupId>
       <artifactId>epubime</artifactId>
-      <version>43f799851e</version>
+      <version>5e8460e455</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.18.3</version>
     </dependency>
 
     <dependency>

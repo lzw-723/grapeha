@@ -2,8 +2,10 @@ package fun.lzwi.grapeha.library.parser;
 
 import java.io.*;
 
-import fun.lzwi.epubime.easy.EasyEpub;
-import fun.lzwi.epubime.util.XmlUtils;
+import fun.lzwi.epubime.epub.EpubBook;
+import fun.lzwi.epubime.epub.EpubParseException;
+import fun.lzwi.epubime.epub.EpubResource;
+import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.grapeha.library.bean.Book;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
@@ -15,40 +17,29 @@ import javax.xml.parsers.ParserConfigurationException;
 public class EpubParser {
   private static final Logger logger = LoggerFactory.getLogger(EpubParser.class);
 
-  public static Book parser(File file) throws ParserConfigurationException, IOException, SAXException {
+  public static Book parser(File file) throws ParserConfigurationException, IOException, SAXException,
+    EpubParseException {
     Book book = new Book();
     book.setPath(file.getPath());
-    EasyEpub easyEpub = new EasyEpub(file);
-    if (easyEpub.getTitle() != null) {
-      book.setName(easyEpub.getTitle());
+    fun.lzwi.epubime.epub.EpubParser parser = new fun.lzwi.epubime.epub.EpubParser(file);
+    EpubBook epub = parser.parse();
+    Metadata metadata = epub.getMetadata();
+    if (metadata.getTitle() != null) {
+      book.setName(metadata.getTitle());
     } else {
       book.setName(file.getName());
     }
 
-    book.setAuthor(easyEpub.getAuthor());
-    book.setDate(easyEpub.getDate());
-
-    if (easyEpub.getCover() == null) {
-
-    } else if (easyEpub.getDescription().contains("<")) {
-      // 处理html
-      InputStream in = new ByteArrayInputStream(easyEpub.getDescription().getBytes());
-      Document document = XmlUtils.getDocument(in);
-      String content = document.getTextContent();
-      book.setDescription(content);
-    } else {
-      book.setDescription(easyEpub.getDescription());
-    }
+    book.setAuthor(metadata.getCreator());
+    book.setDate(metadata.getDate());
+    book.setDescription(metadata.getDescription());
     return book;
   }
 
-  public static InputStream getCoverInputStream(String bookPath) throws IOException, ParserConfigurationException,
-          SAXException {
-    EasyEpub easyEpub = new EasyEpub(new File(bookPath));
-    String cover = easyEpub.getCover();
-    InputStream in = easyEpub.getResource(cover).getInputStream();
-    //    Path destinationPath = Paths.get(String.format("./config/cache/%s.jpg", book.getPath().hashCode()));
-    //    Files.copy(in, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-    return in;
+  public static InputStream getCoverInputStream(String bookPath) throws EpubParseException {
+    fun.lzwi.epubime.epub.EpubParser parser = new fun.lzwi.epubime.epub.EpubParser(new File(bookPath));
+    EpubBook epub = parser.parse();
+    EpubResource cover = epub.getCover();
+    return new ByteArrayInputStream(cover.getData());
   }
 }
