@@ -16,7 +16,7 @@ const props = defineProps({
       class="card-image"
       loading="lazy"
       decoding="async"
-      alt="A kitten walks towards camera on top of pallet."
+      alt="cover"
     />
     <div slot="header">
       {{ props.title}}
@@ -27,6 +27,9 @@ const props = defineProps({
 </template>
 
 <style scoped>
+sl-card {
+  width: 200px;
+}
 .card-image {
   width: 100%;
   height: 300px;

@@ -1,5 +1,7 @@
 package fun.lzwi.grapeha.library;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class BookUtils {
@@ -82,7 +85,7 @@ public class BookUtils {
       if (!Files.exists(path.getParent())) {
         Files.createDirectories(path.getParent());
       }
-      Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
+      resizeImage(in, path.toString(), 400, 600);
       logger.info("为%s生成封面。".formatted(bookPath));
     } catch (IOException | ParserConfigurationException | SAXException e) {
       logger.warn("为%s生成封面失败！".formatted(bookPath), e);
@@ -91,4 +94,38 @@ public class BookUtils {
   }
 
 
+  /**
+   * 缩放图片到指定尺寸
+   * @param in 源图片输入流
+   * @param destPath 目标图片路径
+   * @param width 目标宽度
+   * @param height 目标高度
+   * @return 是否缩放成功
+   */
+  public static boolean resizeImage(InputStream in, String destPath, int width, int height) {
+    try {
+      // 读取源图片
+      BufferedImage srcImage = ImageIO.read(in);
+
+      // 创建目标图片
+      BufferedImage destImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+      // 缩放图片
+      Graphics2D graphics2D = destImage.createGraphics();
+      // 设置高质量渲染参数
+      graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+      graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+      graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+      graphics2D.drawImage(srcImage, 0, 0, width, height, null);
+      graphics2D.dispose();
+
+      // 保存缩放后的图片
+      ImageIO.write(destImage, "jpg", new File(destPath));
+      return true;
+    } catch (IOException e) {
+      logger.warn("缩放图片失败：" + destPath, e);
+      return false;
+    }
+  }
 }
