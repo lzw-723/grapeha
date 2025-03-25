@@ -9,6 +9,7 @@ import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.grapeha.library.bean.Book;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
+import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -32,7 +33,9 @@ public class EpubParser {
 
     book.setAuthor(metadata.getCreator());
     book.setDate(metadata.getDate());
-    book.setDescription(metadata.getDescription());
+    if (metadata.getDescription() != null) {
+      book.setDescription(Jsoup.parse(metadata.getDescription()).text());
+    }
     return book;
   }
 

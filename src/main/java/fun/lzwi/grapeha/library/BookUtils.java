@@ -39,43 +39,6 @@ public class BookUtils {
     return null;
   }
 
-  //  public static List<Book> scan(String path) {
-  //    File libDir = new File(path);
-  //    List<File> bookFiles = new ArrayList<>();
-  //    List<Book> books = new ArrayList<>();
-  //    Path startPath = libDir.toPath(); // 替换为你要搜索的起始路径
-  //    findEpubFiles(startPath, bookFiles);
-  //    fetchInfo(bookFiles, books);
-  //    return books;
-  //  }
-  //
-  //
-  //  private static void fetchInfo(List<File> bookFiles, List<Book> books) {
-  //    for (File file : bookFiles) {
-  //      try {
-  //        books.add(EpubParser.parser(file));
-  //      } catch (ParserConfigurationException | IOException | SAXException e) {
-  //        throw new RuntimeException(e);
-  //      }
-  //    }
-  //  }
-  //
-  //  private static void findEpubFiles(Path path, List<File> files) {
-  //    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
-  //      for (Path entry : directoryStream) {
-  //        if (Files.isRegularFile(entry) && entry.toString().endsWith(".epub")) {
-  //          logger.info("Found epub file: " + entry);
-  //          files.add(entry.toFile());
-  //        } else if (Files.isDirectory(entry)) {
-  //          // 递归搜索子目录
-  //          findEpubFiles(entry, files);
-  //        }
-  //      }
-  //    } catch (IOException e) {
-  //      logger.error(String.format("扫描目录%s过程中出现错误！", path), e);
-  //    }
-  //  }
-
   public static boolean generateCover(String bookPath) {
     try {
       InputStream in = EpubParser.getCoverInputStream(bookPath);

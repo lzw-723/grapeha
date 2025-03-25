@@ -7,21 +7,18 @@ import fun.lzwi.grapeha.AuthUtils;
 import fun.lzwi.grapeha.db.repository.BookRepository;
 import fun.lzwi.grapeha.library.CacheUtils;
 import fun.lzwi.grapeha.library.reader.EpubReader;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.JWTAuthHandler;
-import org.xml.sax.SAXException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class BookAPI {
@@ -29,142 +26,118 @@ public class BookAPI {
 
   public static void init(Router router, Vertx vertx) {
     router.route("/api/v1/books").handler(JWTAuthHandler.create(AuthUtils.getProvider(vertx)));
-    router
-        .get("/api/v1/books/:bookId")
-        .respond(
-            ctx -> {
-              String bookId = ctx.pathParam("bookId");
-              return BookRepository.getInstance()
-                  .findById(bookId)
-                  .map(
-                      book ->
-                          new JsonObject()
-                              .put("code", 200)
-                              .put("msg", "获取书籍成功。")
-                              .put("data", book));
-            });
+    router.get("/api/v1/books/:bookId").respond(ctx -> {
+      String bookId = ctx.pathParam("bookId");
+      return BookRepository.getInstance().findById(bookId).map(book -> new JsonObject().put("code", 200).put("msg",
+        "获取书籍成功。").put("data", book));
+    });
 
-    router
-        .get("/api/v1/books/:bookId/cover")
-        .produces("image/jpeg")
-        .produces("image/png")
-        .handler(
-            ctx -> {
-              String bookId = ctx.pathParam("bookId");
-              BookRepository.getInstance()
-                  .findById(bookId)
-                  .map(book -> CacheUtils.getBookCoverPath(book.getPath()))
-                  .compose(cover -> vertx.fileSystem().readFile(cover))
-                  .onSuccess(
-                      buffer -> {
-                        HttpServerResponse response = ctx.response();
-                        String acceptableContentType = ctx.getAcceptableContentType();
-                        response.putHeader("content-type", acceptableContentType);
-                        response.end(buffer);
-                      })
-                  .onFailure(
-                      e -> {
-                        HttpServerResponse response = ctx.response();
-                        response.end("fail");
-                        logger.error("获取BookId: %s封面失败！".formatted(bookId), e);
-                      });
-            });
+    router.get("/api/v1/books/:bookId/cover").produces("image/jpeg").produces("image/png").handler(ctx -> {
+      String bookId = ctx.pathParam("bookId");
+      BookRepository.getInstance().findById(bookId).map(book -> CacheUtils.getBookCoverPath(book.getPath())).compose(cover -> vertx.fileSystem().readFile(cover)).onSuccess(buffer -> {
+        HttpServerResponse response = ctx.response();
+        String acceptableContentType = ctx.getAcceptableContentType();
+        response.putHeader("content-type", acceptableContentType);
+        response.end(buffer);
+      }).onFailure(e -> {
+        HttpServerResponse response = ctx.response();
+        response.end("fail");
+        logger.error("获取BookId: %s封面失败！".formatted(bookId), e);
+      });
+    });
 
-    router
-        .get("/api/v1/books")
-        .respond(
-            ctx ->
-                BookRepository.getInstance()
-                    .findAll()
-                    .map(
-                        books -> {
-                          JsonObject resp = new JsonObject();
-                          resp.put("code", 200);
-                          resp.put("msg", "获取书籍列表成功。");
-                          resp.put("data", books);
-                          return resp;
-                        }));
+    router.get("/api/v1/books").respond(ctx -> BookRepository.getInstance().findAll().map(books -> {
+      JsonObject resp = new JsonObject();
+      resp.put("code", 200);
+      resp.put("msg", "获取书籍列表成功。");
+      resp.put("data", books);
+      return resp;
+    }));
 
-    router
-        .get("/api/v1/books/:bookId/content")
-        .respond(
-            ctx -> {
-              String bookId = ctx.pathParam("bookId");
-              JsonObject resp = new JsonObject();
+    router.get("/api/v1/books/:bookId/content").respond(ctx -> {
+      String bookId = ctx.pathParam("bookId");
+      JsonObject resp = new JsonObject();
 
-              return BookRepository.getInstance()
-                  .findById(bookId)
-                  .map(
-                      book -> {
-                        try {
-                          EpubParser parser = new EpubParser(new File(book.getPath()));
-                          fun.lzwi.epubime.epub.EpubBook epubBook = parser.parse();
-                          List<EpubChapter> chapters = epubBook.getChapters();
-                          resp.put("code", 200);
-                          resp.put("msg", "获取书籍目录成功。");
-                          resp.put("data", chapters);
-                        } catch (EpubParseException e) {
-                          resp.put("code", 400);
-                          resp.put("msg", e.getMessage());
-                        }
+      return BookRepository.getInstance().findById(bookId).map(book -> {
+        String parent = "/api/v1/books/" + bookId + "/" + "resources/";
+        try {
+          EpubParser parser = new EpubParser(new File(book.getPath()));
+          fun.lzwi.epubime.epub.EpubBook epubBook = parser.parse();
+          List<EpubChapter> chapters = epubBook.getChapters();
+          List<EpubChapter> content = chapters.stream().peek((c) -> {
+            String href =
+              epubBook.getResources().stream().filter(r -> r.getHref().endsWith(c.getContent())).findFirst().get().getHref();
+            c.setContent(parent + href);
+          }).toList();
+          resp.put("code", 200);
+          resp.put("msg", "获取书籍目录成功。");
+          resp.put("data", content);
+        } catch (EpubParseException e) {
+          resp.put("code", 400);
+          resp.put("msg", e.getMessage());
+        }
 
-                        return resp;
-                      });
-            });
+        return resp;
+      });
+    });
 
-//    router
-//        .get("/api/v1/books/:bookId/resources")
-//        .respond(
-//            ctx -> {
-//              String bookId = ctx.pathParam("bookId");
-//              return BookRepository.getInstance()
-//                  .findById(bookId)
-//                  .onFailure(Throwable::printStackTrace)
-//                  .map(
-//                      book -> {
-//                        JsonObject resp = new JsonObject();
-//                        try {
-//                          EasyEpub epub = new EasyEpub(book.getPath());
-//                          List<EasyEpub.EasyResource> resources = epub.getResources();
-//                          resp.put("code", 200);
-//                          resp.put("msg", "");
-//                          resp.put("data", resources);
-//                        } catch (ParserConfigurationException | SAXException | IOException e) {
-//                          logger.error("获取BookId: %s资源失败！".formatted(bookId), e);
-//                          resp.put("code", 400);
-//                          resp.put("msg", e.getMessage());
-//                        }
-//                        return resp;
-//                      });
-//            });
 
-    router
-        .getWithRegex("/api/v1/books/(?<bookId>[^\\\\/]+)/resources/(?<href>.*)")
-        .respond(
-            ctx -> {
-              String bookId = ctx.pathParam("bookId");
-              String href = ctx.pathParam("href");
-              return BookRepository.getInstance()
-                  .findById(bookId)
-                  .compose(
-                      book -> {
-                        ctx.response()
-                            .putHeader(
-                                "content-type", EpubReader.getResourceType(book.getPath(), href));
-                        return EpubReader.getResource(book.getPath(), href);
-                      })
-                  .compose(
-                      buffer -> {
-                        if (ctx.response()
-                            .headers()
-                            .get("content-type")
-                            .equals("application/xhtml+xml")) {
-                          String content = buffer.toString(StandardCharsets.UTF_8);
-                          logger.info("content: %s".formatted(content));
-                          return Future.succeededFuture(content);
-                        }
-                        return Future.succeededFuture(buffer);
-                      });
-            });
+    router.getWithRegex("/api/v1/books/(?<bookId>[^\\\\/]+)/resources/(?<href>.*)").respond(ctx -> {
+      String bookId = ctx.pathParam("bookId");
+      String href = ctx.pathParam("href");
+      return BookRepository.getInstance().findById(bookId).compose(book -> {
+        ctx.response().putHeader("content-type", EpubReader.getResourceType(book.getPath(), href));
+
+        return EpubReader.getResource(book.getPath(), href);
+      }).map(b -> {
+        String res = ctx.pathParam("href");
+        if (!res.endsWith(".html") && !res.endsWith(".xhtml")) {
+          return b;
+        }
+        Document document = Jsoup.parse(b.toString());
+        document.body().select("img").forEach(img -> {
+          String parent = ctx.pathParam("href").substring(0, ctx.pathParam("href").lastIndexOf("/") + 1);
+          String src = img.attr("src");
+          if (src.startsWith("../")) {
+            // 去除../
+            src = src.substring(3);
+            // 去除最后一个/
+            parent = parent.substring(0, parent.length() - 2);
+            // 获取父目录
+            parent = parent.substring(0, parent.lastIndexOf("/") + 1);
+          }
+          img.attr("src", "/api/v1/books/%s/resources/%s".formatted(bookId, parent + src));
+        });
+        document.body().select("image").forEach(img -> {
+          String parent = ctx.pathParam("href").substring(0, ctx.pathParam("href").lastIndexOf("/") + 1);
+          String src = img.attr("xlink:href");
+          if (src.startsWith("../")) {
+            // 去除../
+            src = src.substring(3);
+            // 去除最后一个/
+            parent = parent.substring(0, parent.length() - 2);
+            // 获取父目录
+            parent = parent.substring(0, parent.lastIndexOf("/") + 1);
+          }
+          img.attr("xlink:href", "/api/v1/books/%s/resources/%s".formatted(bookId, parent + src));
+        });
+        document.body().select("a").forEach(a -> {
+          String parent = ctx.pathParam("href").substring(0, ctx.pathParam("href").lastIndexOf("/") + 1);
+          String src = a.attr("href");
+          if (src.startsWith("../")) {
+            // 去除../
+            src = src.substring(3);
+            // 去除最后一个/
+            parent = parent.substring(0, parent.length() - 2);
+            // 获取父目录
+            parent = parent.substring(0, parent.lastIndexOf("/") + 1);
+          }
+          a.attr("href", "/api/v1/books/%s/resources/%s".formatted(bookId, parent + src));
+        });
+        // 提取正文
+        String body = document.body().html();
+        return Buffer.buffer(body);
+      });
+    });
   }
 }

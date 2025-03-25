@@ -4,17 +4,11 @@ import {useRouter, useRoute} from "vue-router";
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 
-import {getToken, getUsername} from "../store";
 import {checkLogin, fetchUserToken} from "../api.js";
 import Appbar from "../components/Appbar.vue";
 
-const formData = reactive({
-  username: "",
-  password: "",
-});
-
-const token = getToken();
-const username = getUsername();
+const username = ref("");
+const password = ref("");
 
 let succeed = ref(false);
 
@@ -27,10 +21,8 @@ watch(succeed, (value) => {
 });
 
 function login() {
-  fetchUserToken(formData.username, formData.password)
+  fetchUserToken(username.value, password.value)
     .then((t) => {
-        username.value = formData.username;
-        token.value = t;
         succeed.value = true;
       }
     );
@@ -40,7 +32,7 @@ checkLogin().then(r => succeed.value = true)
 </script>
 
 <template>
-<Appbar/>
+  <Appbar/>
   <div class="top-padding">
 
   </div>
@@ -49,13 +41,13 @@ checkLogin().then(r => succeed.value = true)
       type="text"
       name="username"
       placeholder="用户名"
-      @slInput="formData.username = $event.target.value"
+      v-model="username"
     />
     <sl-input
       type="password"
       autocomplete="current-password"
       placeholder="密码"
-      @slInput="formData.password = $event.target.value"
+      v-model="password"
     />
     <sl-button class="login-button" @click="login">
       登录
@@ -68,6 +60,7 @@ checkLogin().then(r => succeed.value = true)
 .top-padding {
   height: 10rem;
 }
+
 .login-form {
   display: flex;
   flex-direction: column;
