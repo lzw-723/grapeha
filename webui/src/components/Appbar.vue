@@ -1,14 +1,15 @@
 <script setup>
-import {defineProps, watch} from "vue";
+import {defineProps, defineEmits, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {getToken, getUsername} from "../store.js";
 
+defineEmits(["content"])
 const props = defineProps(
   {
     title: {
       type: String,
       default: "grapeha",
-    },
+    }
   }
 )
 
@@ -41,6 +42,7 @@ watch(
     <div>
       <sl-button v-show="route.path === '/'" @click="logout">退出</sl-button>
       <sl-button v-show="route.path === '/'">菜单</sl-button>
+      <sl-button v-show="route.path.startsWith('/read')" @click="$emit('content')">目录</sl-button>
     </div>
   </div>
 </template>
@@ -65,6 +67,10 @@ watch(
   flex-grow: 0.2;
   display: flex;
   justify-items: end;
+}
+
+.app-bar div:last-child {
+  flex-direction: row-reverse;
 }
 
 </style>

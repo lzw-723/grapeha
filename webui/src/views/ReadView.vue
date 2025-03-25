@@ -46,10 +46,8 @@ watch(() => route.params.id, (id) => {
 </script>
 
 <template>
-  <Appbar :title/>
-  <sl-button class="menu-button" @click="openMenu = !openMenu">目录</sl-button>
+  <Appbar :title @content="openMenu = true"/>
   <sl-drawer label="Drawer" class="drawer-focus" :open="openMenu" @sl-after-hide="openMenu = false">
-    <sl-button slot="footer" variant="primary" @click="openMenu = !openMenu">Close</sl-button>
     <sl-menu>
       <sl-menu-item v-for="item in content" @click="readResource(item.content)">{{
           item.title

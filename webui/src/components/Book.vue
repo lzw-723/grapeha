@@ -18,21 +18,27 @@ const props = defineProps({
       decoding="async"
       alt="cover"
     />
-    <div slot="header">
-      {{ props.title}}
-      <sl-icon-button name="gear" label="Settings"></sl-icon-button>
-    </div>
-      {{ props.author}}
+    <span class="card-title">{{ props.title }}</span>
   </sl-card>
 </template>
 
 <style scoped>
 sl-card {
-  width: 200px;
+  width: 140px;
 }
+
 .card-image {
   width: 100%;
-  height: 300px;
+  height: 210px;
   object-fit: cover;
+}
+
+.card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 限制显示行数 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 添加省略号 */
+  white-space: normal; /* 允许换行 */
 }
 </style>

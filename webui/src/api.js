@@ -1,7 +1,7 @@
 import {getToken, getUsername} from "./store";
 
 const token = getToken();
-const username = getUsername();
+const _username = getUsername();
 
 function fetchUserToken(username, password) {
   return fetch("/api/v1/users/" + username + "/token", {
@@ -12,6 +12,7 @@ function fetchUserToken(username, password) {
         throw Error(data["msg"]);
       }
       token.value = data["data"];
+      _username.value = username;
       return token.value;
     });
 }
@@ -89,11 +90,11 @@ function getBookResourceById(id, res) {
  * @returns {Object} 如果登录有效，返回用户数据。
  */
 async function checkLogin() {
-  console.log(token.value, username.value)
-  if (token.value == null || username.value == null || username.value === "" || token.value === "") {
+  console.log(token.value, _username.value)
+  if (token.value == null || _username.value == null || _username.value === "" || token.value === "") {
     throw Error("没有登录记录！");
   }
-  let resp = await fetch(`/api/v1/users/${username.value}`, {
+  let resp = await fetch(`/api/v1/users/${_username.value}`, {
     headers: {
       authorization: `Bearer ${token.value}`,
     }
