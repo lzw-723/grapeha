@@ -1,9 +1,11 @@
 <script setup>
-import {defineProps, defineEmits, watch} from "vue";
+import {watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
 import {getToken, getUsername} from "../store.js";
 
-defineEmits(["content"])
+defineEmits(["menu", "content"])
 const props = defineProps(
   {
     title: {
@@ -34,16 +36,16 @@ watch(
 
 <template>
   <div class="app-bar">
-    <div v-if="route.path !== '/login'">
-      <sl-button @click="$router.back()">返回</sl-button>
+    <sl-button-group v-if="route.path !== '/login'">
+      <sl-button v-if="route.path !== '/'" @click="$router.back()">返回</sl-button>
       <sl-button @click="$router.push('/')">主页</sl-button>
-    </div>
+    </sl-button-group>
     <h1>{{ props.title }}</h1>
-    <div>
+    <sl-button-group>
       <sl-button v-show="route.path === '/'" @click="logout">退出</sl-button>
-      <sl-button v-show="route.path === '/'">菜单</sl-button>
+      <sl-button v-show="route.path.startsWith('/read')" @click="$emit('menu')">菜单</sl-button>
       <sl-button v-show="route.path.startsWith('/read')" @click="$emit('content')">目录</sl-button>
-    </div>
+    </sl-button-group>
   </div>
 </template>
 
@@ -63,14 +65,8 @@ watch(
   font-size: 1rem;
 }
 
-.app-bar div {
+.app-bar sl-button-group {
   flex-grow: 0.2;
-  display: flex;
-  justify-items: end;
-}
-
-.app-bar div:last-child {
-  flex-direction: row-reverse;
 }
 
 </style>

@@ -31,6 +31,18 @@ function readResource(res) {
   }).catch(err => {
     console.log(err);
   })
+  // 滚动到顶部，添加动画
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  })
+}
+
+function next() {
+  const index = content.value.findIndex(item => item.content === res_url.value);
+  if (index < content.value.length - 1) {
+    readResource(content.value[index + 1].content);
+  }
 }
 
 watch(() => route.params.id, (id) => {
@@ -40,23 +52,20 @@ watch(() => route.params.id, (id) => {
   fetchBookContent(id).then(r => {
     console.log(r);
     content.value = r;
-    readResource(r[0].content, r[0].title);
+    readResource(r[0].content);
   });
 }, {immediate: true});
 </script>
 
 <template>
   <Appbar :title @content="openMenu = true"/>
-  <sl-drawer label="Drawer" class="drawer-focus" :open="openMenu" @sl-after-hide="openMenu = false">
+  <sl-drawer label="目录" :open="openMenu" @sl-after-hide="openMenu = false">
     <sl-menu>
-      <sl-menu-item v-for="item in content" @click="readResource(item.content)">{{
-          item.title
-        }}
-      </sl-menu-item>
+      <sl-menu-item v-for="item in content" @click="readResource(item.content)">{{ item.title }}</sl-menu-item>
     </sl-menu>
   </sl-drawer>
 
-  <Reader :src="res_url"/>
+  <Reader :src="res_url" @goto="readResource($event)" @next="next"/>
   <!--  <iframe class="read-area" :srcdoc="html"></iframe>-->
   <!--  <sl-include :src="res_url">-->
   <!--  </sl-include>-->
