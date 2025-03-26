@@ -133,6 +133,12 @@ public class BookAPI {
             parent = parent.substring(0, parent.lastIndexOf("/") + 1);
           }
           a.attr("href", "/api/v1/books/%s/resources/%s".formatted(bookId, parent + src));
+          if (src.startsWith("#") || src.startsWith("http://") || src.startsWith("https://")) {
+            a.attr("href", src);
+          }
+          if (src.isBlank()) {
+            a.removeAttr("href");
+          }
         });
         // 提取正文
         String body = document.body().html();
