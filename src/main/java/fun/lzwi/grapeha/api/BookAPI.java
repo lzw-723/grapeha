@@ -19,6 +19,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.Collator;
 import java.util.List;
 import java.util.Locale;
@@ -31,7 +33,7 @@ public class BookAPI {
     router.get("/api/v1/books/:bookId").respond(ctx -> {
       String bookId = ctx.pathParam("bookId");
       return BookRepository.getInstance().findById(bookId).map(book -> new JsonObject().put("code", 200).put("msg",
-              "获取书籍成功。").put("data", book));
+        "获取书籍成功。").put("data", book));
     });
 
     router.get("/api/v1/books/:bookId/cover").produces("image/jpeg").produces("image/png").handler(ctx -> {
@@ -81,9 +83,9 @@ public class BookAPI {
               h = h.substring(0, h.indexOf("#"));
             }
             // 无#的html文件
-            String p2 = h;
+            String p2 = URLDecoder.decode(h, StandardCharsets.UTF_8); // 解码url
             String href =
-                    epubBook.getResources().stream().filter(r -> r.getHref().endsWith(p2)).findFirst().get().getHref();
+              epubBook.getResources().stream().filter(r -> r.getHref().endsWith(p2)).findFirst().get().getHref();
             if (p1.contains("#")) {
               // 有#的html文件
               href = href + p1.substring(p1.indexOf("#"));

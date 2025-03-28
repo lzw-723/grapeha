@@ -23,6 +23,13 @@ const openMenu = ref(false);
 
 function readResource(res) {
   console.log(res);
+  if (res.startsWith("#")) {
+    const element = document.querySelector(res);
+    if (element) {
+      element.scrollIntoView({behavior: "smooth"});
+    }
+    return;
+  }
   const label = content.value.find(item => item.content === res)?.title || "未命名";
   title.value = book.value.name + " - " + label;
   // 提取锚点
