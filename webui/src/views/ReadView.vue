@@ -23,18 +23,31 @@ const openMenu = ref(false);
 
 function readResource(res) {
   console.log(res);
-  res_url.value = res;
-  const label = content.value.find(item => item.content === res).title;
+  const label = content.value.find(item => item.content === res)?.title || "未命名";
   title.value = book.value.name + " - " + label;
+  // 提取锚点
+  let anchor = null;
+  if (res.includes("#")) {
+    anchor = "#" + res.split("#")[1];
+    res = res.split("#")[0];
+  }
+  res_url.value = res;
   fetch(res_url.value).then(r => r.text()).then(t => {
     html.value = t;
+    if (anchor) {
+      const element = document.querySelector(anchor);
+      if (element) {
+        element.scrollIntoView({behavior: "smooth"});
+      }
+    } else {
+      // 滚动到顶部
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
+    }
   }).catch(err => {
     console.log(err);
-  })
-  // 滚动到顶部，添加动画
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
   })
 }
 

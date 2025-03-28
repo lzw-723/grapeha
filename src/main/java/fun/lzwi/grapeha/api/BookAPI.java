@@ -29,7 +29,7 @@ public class BookAPI {
     router.get("/api/v1/books/:bookId").respond(ctx -> {
       String bookId = ctx.pathParam("bookId");
       return BookRepository.getInstance().findById(bookId).map(book -> new JsonObject().put("code", 200).put("msg",
-        "获取书籍成功。").put("data", book));
+              "获取书籍成功。").put("data", book));
     });
 
     router.get("/api/v1/books/:bookId/cover").produces("image/jpeg").produces("image/png").handler(ctx -> {
@@ -64,9 +64,25 @@ public class BookAPI {
           EpubParser parser = new EpubParser(new File(book.getPath()));
           fun.lzwi.epubime.epub.EpubBook epubBook = parser.parse();
           List<EpubChapter> chapters = epubBook.getChapters();
-          List<EpubChapter> content = chapters.stream().peek((c) -> {
+          List<EpubChapter> content = chapters.stream().filter(c -> !c.getContent().startsWith("#")).peek((c) -> {
+            String h = c.getContent();
+            if (h.startsWith("../")) {
+              // 去除../
+              h = h.substring(3);
+            }
+            String p1 = h;
+            if (h.contains("#")) {
+              // 去除#
+              h = h.substring(0, h.indexOf("#"));
+            }
+            // 无#的html文件
+            String p2 = h;
             String href =
-              epubBook.getResources().stream().filter(r -> r.getHref().endsWith(c.getContent())).findFirst().get().getHref();
+                    epubBook.getResources().stream().filter(r -> r.getHref().endsWith(p2)).findFirst().get().getHref();
+            if (p1.contains("#")) {
+              // 有#的html文件
+              href = href + p1.substring(p1.indexOf("#"));
+            }
             c.setContent(parent + href);
           }).toList();
           resp.put("code", 200);
@@ -90,8 +106,8 @@ public class BookAPI {
 
         return EpubReader.getResource(book.getPath(), href);
       }).map(b -> {
-        String res = ctx.pathParam("href");
-        if (!res.endsWith(".html") && !res.endsWith(".xhtml")) {
+        String type = ctx.response().headers().get("content-type");
+        if (!type.contains("html") && !type.contains("xml")) {
           return b;
         }
         Document document = Jsoup.parse(b.toString());
