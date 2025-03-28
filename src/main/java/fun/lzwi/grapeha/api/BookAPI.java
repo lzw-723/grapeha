@@ -19,7 +19,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
+import java.text.Collator;
 import java.util.List;
+import java.util.Locale;
 
 public class BookAPI {
   static Logger logger = LoggerFactory.getLogger(BookAPI.class);
@@ -47,6 +49,9 @@ public class BookAPI {
     });
 
     router.get("/api/v1/books").respond(ctx -> BookRepository.getInstance().findAll().map(books -> {
+      // 按照书籍名称排序
+      Collator collator = Collator.getInstance(Locale.CHINA);
+      books.sort((b1, b2) -> collator.compare(b1.getName(), b2.getName()));
       JsonObject resp = new JsonObject();
       resp.put("code", 200);
       resp.put("msg", "获取书籍列表成功。");
